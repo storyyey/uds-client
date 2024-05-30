@@ -17,10 +17,10 @@ int main(int argc, char *argv[])
     memset(&gen_config, 0, sizeof(gen_config));
     YAPI_DM dmapi = yapi_dm_create();
     if (dmapi) {
-        demo_printf("yota_master_api * yapi_dm_create() - PASS \n");
+        demo_printf("ydm_master_api * yapi_dm_create() - PASS \n");
     }
     else {
-        demo_printf("yota_master_api * yapi_dm_create() - FAIL \n");
+        demo_printf("ydm_master_api * yapi_dm_create() - FAIL \n");
     }
 
     if (yapi_dm_is_valid(dmapi)) {
@@ -39,19 +39,19 @@ int main(int argc, char *argv[])
     
     YAPI_DM dmapi1 = yapi_dm_create();
     if (dmapi1 == 0) {
-        demo_printf("yota_master_api * yapi_dm_create(1) - FAIL \n");
+        demo_printf("ydm_master_api * yapi_dm_create(1) - FAIL \n");
     }
     YAPI_DM dmapi2 = yapi_dm_create();
     if (dmapi2 == 0) {
-        demo_printf("yota_master_api * yapi_dm_create(2) - FAIL \n");
+        demo_printf("ydm_master_api * yapi_dm_create(2) - FAIL \n");
     }
     YAPI_DM dmapi3 = yapi_dm_create();    
     if (dmapi2 == 0) {
-        demo_printf("yota_master_api * yapi_dm_create(3) - FAIL \n");
+        demo_printf("ydm_master_api * yapi_dm_create(3) - FAIL \n");
     }
     YAPI_DM dmapi4 = yapi_dm_create();
     if (dmapi4 == 0) {
-        demo_printf("yota_master_api * yapi_dm_create(4) - FAIL \n");
+        demo_printf("ydm_master_api * yapi_dm_create(4) - FAIL \n");
     }
 
     if (yapi_dm_ipc_channel_fd(dmapi) > 0) {
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
         continue;
         YAPI_DM dmapi = yapi_dm_create();
         if (dmapi) {
-            demo_printf("FREE ota master api \n");
+            demo_printf("FREE dm master api \n");
             yapi_dm_destroy(dmapi);
         }
     }

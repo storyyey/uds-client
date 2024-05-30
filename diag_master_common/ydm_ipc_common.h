@@ -62,11 +62,11 @@
 #define memappend(addr, data, nbyte) memcpy(addr, data, nbyte)
 
 /* ------------------------------------------------------------------------------------------------------ */
-typedef struct YByteArray {
+typedef struct ybyte_array {
     yuint8 *data;
     yuint32 dlen;
     yuint32 size;
-} YByteArray;
+} ybyte_array;
 
 /* -----------------------------------------诊断服务配置中的关键字---------------------------------------- */
 
@@ -131,11 +131,11 @@ typedef struct YByteArray {
 #define DM_EVENT_UDS_SERVICE_27_SA_KEY_EMIT     (14) /* diag_master_api -> diag_master  */
 #define DM_EVENT_UDS_SERVICE_27_SA_KEY_ACCEPT   (DM_EVENT_UDS_SERVICE_27_SA_KEY_EMIT | DM_EVENT_ACCEPT_MASK) /* diag_master -> diag_master_api  */
 
-/* diag_master_api发起连接ota master的请求 */
+/* diag_master_api发起连接diag master的请求 */
 #define DM_EVENT_CONNECT_DIAG_MASTER_EMIT     (15) /* diag_master_api -> diag_master  */
 #define DM_EVENT_CONNECT_DIAG_MASTER_ACCEPT   (DM_EVENT_CONNECT_DIAG_MASTER_EMIT | DM_EVENT_ACCEPT_MASK) /* diag_master -> diag_master_api  */
 
-/* ota master发送心跳保活以确认diag_master_api是否在线 */
+/* diag master发送心跳保活以确认diag_master_api是否在线 */
 #define DM_EVENT_OMAPI_KEEPALIVE_EMIT     (16) /* diag_master -> diag_master_api  */
 #define DM_EVENT_OMAPI_KEEPALIVE_ACCEPT   (DM_EVENT_OMAPI_KEEPALIVE_EMIT | DM_EVENT_ACCEPT_MASK) /* diag_master_api -> diag_master  */
 
@@ -542,12 +542,12 @@ typedef struct ipc_service_sa_key_s {
     yuint8 key[0];
 } ipc_service_sa_key_t;
 
-/* ota master api请求连接ota master */
+/* diag master api请求连接diag master */
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     -------------------------------------------------------------------------------------------------
    |       n nyte     |         4byte      |            4byte             |     nbyte                |
     ------------------ -------------------- ------------------------------ --------------------------
-   | ipc common header| keepalive interval | ota master api unix path len | ota master api unix path | 
+   | ipc common header| keepalive interval | diag master api unix path len | diag master api unix path | 
     -------------------------------------------------------------------------------------------------
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
 #define DMREQ_CONNECT_KEEPALIVE_INTERVAL_OFFSET (DM_IPC_EVENT_MSG_SIZE)
@@ -565,12 +565,12 @@ typedef struct ipc_diag_master_connect_request_s {
     char path[0];
 } ipc_diag_master_connect_request_t;
 
-/* ota master 响应ota master api的连接请求 */
+/* diag master 响应diag master api的连接请求 */
 /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     --------------------------------------------------------------------
    |       n nyte     |            4byte         |     nbyte            |
     ------------------ -------------------------- ----------------------
-   | ipc common header| ota master unix path len | ota master unix path | 
+   | ipc common header| diag master unix path len | diag master unix path | 
     --------------------------------------------------------------------
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
 #define DMREP_CONNECT_DM_PATH_LEN_OFFSET (DM_IPC_EVENT_MSG_SIZE)
@@ -655,25 +655,25 @@ typedef struct ipc_36_transfer_progress_s {
     yuint32 elapsed_time; /* unit ms */
 } ipc_36_transfer_progress_t;
 
-YByteArray *YByteArrayNew();
+ybyte_array *y_byte_array_new();
 
-void YByteArrayDelete(YByteArray *arr);
+void y_byte_array_delete(ybyte_array *arr);
 
-void YByteArrayClear(YByteArray *arr);
+void y_byte_array_clear(ybyte_array *arr);
 
-const yuint8 *YByteArrayConstData(YByteArray *arr);
+const yuint8 *y_byte_array_const_data(ybyte_array *arr);
 
-int YByteArrayCount(YByteArray *arr);
+int y_byte_array_count(ybyte_array *arr);
 
-void YByteArrayAppendChar(YByteArray *dest, yuint8 c);
+void y_byte_array_append_char(ybyte_array *dest, yuint8 c);
 
-void YByteArrayAppendArray(YByteArray *dest, YByteArray *src);
+void y_byte_array_append_array(ybyte_array *dest, ybyte_array *src);
 
-void YByteArrayAppendNChar(YByteArray *dest, yuint8 *c, yuint32 count);
+void y_byte_array_append_nchar(ybyte_array *dest, yuint8 *c, yuint32 count);
 
-int YByteArrayEqual(YByteArray *arr1, YByteArray *arr2);
+int y_byte_array_equal(ybyte_array *arr1, ybyte_array *arr2);
 
-int YByteArrayCharEqual(YByteArray *arr1, yuint8 *c, yuint32 count);
+int y_byte_array_char_equal(ybyte_array *arr1, yuint8 *c, yuint32 count);
 
 int ydm_recvfrom(int sockfd, yuint8 *buff, yuint32 size, yuint32 toms);
 

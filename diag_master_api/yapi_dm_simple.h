@@ -171,34 +171,34 @@ extern void yapi_dm_event_loop(YAPI_DM yapi);
 extern void syapi_dm_event_loop();
 
 // 创建一个新的YByteArray对象并返回其指针  
-extern YByteArray *yapi_byte_array_new();  
+extern ybyte_array *yapi_byte_array_new();  
   
 // 释放YByteArray对象所占用的内存  
-extern void yapi_byte_array_delete(YByteArray *arr);  
+extern void yapi_byte_array_delete(ybyte_array *arr);  
   
 // 清空YByteArray对象的内容  
-extern void yapi_byte_array_clear(YByteArray *arr);  
+extern void yapi_byte_array_clear(ybyte_array *arr);  
   
 // 返回YByteArray对象的常量数据指针  
-extern const yuint8 *yapi_byte_array_const_data(YByteArray *arr);  
+extern const yuint8 *yapi_byte_array_const_data(ybyte_array *arr);  
   
 // 返回YByteArray对象中的元素数量  
-extern int yapi_byte_array_count(YByteArray *arr);  
+extern int yapi_byte_array_count(ybyte_array *arr);  
   
 // 在YByteArray对象末尾添加一个字符  
-extern void yapi_byte_array_append_char(YByteArray *dest, yuint8 c);  
+extern void yapi_byte_array_append_char(ybyte_array *dest, yuint8 c);  
   
 // 将一个YByteArray对象的内容追加到另一个YByteArray对象中  
-extern void yapi_byte_array_append_array(YByteArray *dest, YByteArray *src);  
+extern void yapi_byte_array_append_array(ybyte_array *dest, ybyte_array *src);  
   
 // 在YByteArray对象末尾追加一个字符数组的内容  
-extern void yapi_byte_array_append_nchar(YByteArray *dest, yuint8 *c, yuint32 count);  
+extern void yapi_byte_array_append_nchar(ybyte_array *dest, yuint8 *c, yuint32 count);  
   
 // 比较两个YByteArray对象是否相等  
-extern int yapi_byte_array_equal(YByteArray *arr1, YByteArray *arr2);  
+extern int yapi_byte_array_equal(ybyte_array *arr1, ybyte_array *arr2);  
   
 // 比较一个YByteArray对象和一个字符数组的内容是否相等  
-extern int yapi_byte_array_char_equal(YByteArray *arr1, yuint8 *c, yuint32 count);
+extern int yapi_byte_array_char_equal(ybyte_array *arr1, yuint8 *c, yuint32 count);
 
 enum yapi_log_level {
     YAPI_LOG_DEBUG,
@@ -230,11 +230,11 @@ extern int yapi_om_log_print(enum yapi_log_level level, int (*printf)(const char
 /* ------------------------------------------------------------ */
 /* 便捷的配置UDS客户端 */
 #define udsc_runtime_fail_abort_(var) .isFailAbort = (var)
-#define udsc_runtime_tester_present_enable_(var) .tpEnable = (var)
-#define udsc_runtime_tester_present_refresh_(var) .isTpRefresh = (var)
-#define udsc_runtime_tester_present_interval_(var) .tpInterval = (var)
-#define udsc_runtime_tester_present_ta_(var) .tpta = (var)    
-#define udsc_runtime_tester_present_sa_(var) .tpta = (var)
+#define udsc_runtime_tester_present_enable_(var) .tester_present_enable = (var)
+#define udsc_runtime_tester_present_refresh_(var) .is_tester_present_refresh = (var)
+#define udsc_runtime_tester_present_interval_(var) .tester_present_interval = (var)
+#define udsc_runtime_tester_present_ta_(var) .tester_present_ta = (var)    
+#define udsc_runtime_tester_present_sa_(var) .tester_present_ta = (var)
 #define udsc_runtime_td_36_notify_interval_(var) .td_36_notify_interval = (var)
 #define udsc_runtime_statis_enable_(var) .runtime_statis_enable = (var)
 #define udsc_runtime_uds_msg_parse_enable_(var) .uds_msg_parse_enable = (var)
@@ -271,17 +271,17 @@ extern int yapi_om_log_print(enum yapi_log_level level, int (*printf)(const char
 #define udsc_expect_respon_rule_(var) .expectRespon_rule = (var)
 #define udsc_finish_rule_(var) .finish_rule = (var)
 #define udsc_finish_num_max_(var) .finish_num_max = (var)
-#define udsc_34_rd_data_format_identifier_(var) .service_34_rd.dataFormatIdentifier = (var)
-#define udsc_34_rd_address_and_length_format_identifier_(var) .service_34_rd.addressAndLengthFormatIdentifier = (var)
-#define udsc_34_rd_memory_address_(var) .service_34_rd.memoryAddress = (var)
-#define udsc_34_rd_memory_size_(var) .service_34_rd.memorySize = (var)
-#define udsc_38_rft_mode_of_operation_(var) .service_38_rft.modeOfOperation = (var)
-#define udsc_38_rft_file_path_and_name_length_(var) .service_38_rft.filePathAndNameLength = (var)
-#define udsc_38_rft_data_format_identifier_(var) .service_38_rft.dataFormatIdentifier = (var)
-#define udsc_38_rft_file_size_parameter_length_(var) .service_38_rft.fileSizeParameterLength = (var)
-#define udsc_38_rft_file_size_un_compressed_(var) .service_38_rft.fileSizeUnCompressed = (var)
-#define udsc_38_rft_file_size_compressed_(var) .service_38_rft.fileSizeCompressed = (var)
-#define udsc_max_number_of_block_length_(var) .maxNumberOfBlockLength = (var)
+#define udsc_34_rd_data_format_identifier_(var) .service_34_rd.data_format_identifier = (var)
+#define udsc_34_rd_address_and_length_format_identifier_(var) .service_34_rd.address_and_length_format_identifier = (var)
+#define udsc_34_rd_memory_address_(var) .service_34_rd.memory_address = (var)
+#define udsc_34_rd_memory_size_(var) .service_34_rd.memory_size = (var)
+#define udsc_38_rft_mode_of_operation_(var) .service_38_rft.mode_of_operation = (var)
+#define udsc_38_rft_file_path_and_name_length_(var) .service_38_rft.file_path_and_name_length = (var)
+#define udsc_38_rft_data_format_identifier_(var) .service_38_rft.data_format_identifier = (var)
+#define udsc_38_rft_file_size_parameter_length_(var) .service_38_rft.file_size_parameter_length = (var)
+#define udsc_38_rft_file_size_un_compressed_(var) .service_38_rft.file_size_uncompressed = (var)
+#define udsc_38_rft_file_size_compressed_(var) .service_38_rft.file_size_compressed = (var)
+#define udsc_max_number_of_block_length_(var) .max_number_of_block_length = (var)
 /* ------------------------------------------------------------ */
 #define udsc_service_base_set_(_sid, _sa, _ta, ...) \
         ++__cfg_priority__; \
@@ -301,8 +301,8 @@ extern int yapi_om_log_print(enum yapi_log_level level, int (*printf)(const char
         }
 #define udsc_service_38_rft_file_path_and_name_set_(var) \
         if ((var)) { \
-            snprintf((char *)__service_cfg__.service_38_rft.filePathAndName, \
-                sizeof(__service_cfg__.service_38_rft.filePathAndName), "%s", (char *)(var)); \
+            snprintf((char *)__service_cfg__.service_38_rft.file_path_and_name, \
+                sizeof(__service_cfg__.service_38_rft.file_path_and_name), "%s", (char *)(var)); \
         } 
 #define udsc_service_file_local_path_set_(var) \
         if ((var)) { \

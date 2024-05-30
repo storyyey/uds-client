@@ -56,7 +56,7 @@ static yuint8 udsc_service_response_nrc(yuint8 *rmsg, yuint32 size)
 }
 
 /* 是否是消极响应 */
-static BOOLEAN udsc_service_negative_response(yuint8 *rmsg, yuint32 size)
+static boolean udsc_service_negative_response(yuint8 *rmsg, yuint32 size)
 {
     if (rmsg && size > 0) {
         if (rmsg[0] == NEGATIVE_RESPONSE_ID) {
@@ -89,7 +89,7 @@ static void udsc_service_item_invalid_set(uds_client *udsc)
 }
 
 /* 检查当前活跃的诊断服务项是否有效 */
-static BOOLEAN udsc_service_item_index_valid(uds_client *udsc, yint32 index)
+static boolean udsc_service_item_index_valid(uds_client *udsc, yint32 index)
 {
     if (index >= 0 && \
         index < udsc->service_cnt && \
@@ -100,7 +100,7 @@ static BOOLEAN udsc_service_item_index_valid(uds_client *udsc, yint32 index)
     return false;
 }
 
-static BOOLEAN udsc_service_have_sub(yuint8 sid)
+static boolean udsc_service_have_sub(yuint8 sid)
 {
     if (sid == UDS_SERVICES_DSC || \
         sid == UDS_SERVICES_ER || \
@@ -119,7 +119,7 @@ static BOOLEAN udsc_service_have_sub(yuint8 sid)
 }
 
 /* 是否是失败即中止 */
-static BOOLEAN udsc_is_fail_abort(uds_client *udsc)
+static boolean udsc_is_fail_abort(uds_client *udsc)
 {
     return !!udsc->isFailAbort;
 }
@@ -136,12 +136,12 @@ static void udsc_service_response_unexpect(uds_client *udsc)
     udsc->response_meet_expect = false;
 }
 
-static BOOLEAN udsc_service_response_meet_expect(uds_client *udsc)
+static boolean udsc_service_response_meet_expect(uds_client *udsc)
 {
     return !!udsc->response_meet_expect;
 }
 
-static BOOLEAN udsc_service_isactive(uds_client *udsc)
+static boolean udsc_service_isactive(uds_client *udsc)
 {
     return !!udsc_service_item_index_valid(udsc, udsc->sindex);
 }
@@ -186,7 +186,7 @@ static int udsc_surplus_service_find(uds_client *udsc, yuint8 sid)
 }
 
 /* 查找剩余未执行的服务内是否含有指定服务 */
-static BOOLEAN udsc_surplus_service_container(uds_client *udsc, yuint8 sid)
+static boolean udsc_surplus_service_container(uds_client *udsc, yuint8 sid)
 {
     if (udsc_surplus_service_find(udsc, sid) > 0) {
         return true;
@@ -196,7 +196,7 @@ static BOOLEAN udsc_surplus_service_container(uds_client *udsc, yuint8 sid)
 }
 
 /* 停止UDS客户端的运行 */
-static BOOLEAN  udsc_services_stop(uds_client *udsc)
+static boolean  udsc_services_stop(uds_client *udsc)
 {
     /* 标记到无效的诊断服务索引 */
     udsc_service_item_invalid_set(udsc);    
@@ -213,14 +213,14 @@ static BOOLEAN  udsc_services_stop(uds_client *udsc)
 static void udsc_service_tester_present_refresh(uds_client *udsc)
 {
     ev_timer_stop(udsc->loop, &udsc->testerPresent_watcher);
-    ev_timer_set(&udsc->testerPresent_watcher, udsc->tpInterval * 0.001, udsc->tpInterval * 0.001);
+    ev_timer_set(&udsc->testerPresent_watcher, udsc->tester_present_interval * 0.001, udsc->tester_present_interval * 0.001);
     ev_timer_start(udsc->loop, &udsc->testerPresent_watcher);
 }
 
 static void udsc_service_tester_present_timer_start(uds_client *udsc)
 {
     ev_timer_stop(udsc->loop, &udsc->testerPresent_watcher);
-    ev_timer_set(&udsc->testerPresent_watcher, udsc->tpInterval * 0.001, udsc->tpInterval * 0.001);
+    ev_timer_set(&udsc->testerPresent_watcher, udsc->tester_present_interval * 0.001, udsc->tester_present_interval * 0.001);
     ev_timer_start(udsc->loop, &udsc->testerPresent_watcher);
 }
 
@@ -284,7 +284,7 @@ static void udsc_service_response_wait_refresh(uds_client *udsc)
 }
 
 /* 是否保持执行当前服务 */
-static BOOLEAN udsc_service_is_keep(uds_client *udsc)
+static boolean udsc_service_is_keep(uds_client *udsc)
 {
     return udsc->iskeep;
 }
@@ -307,8 +307,8 @@ static void udsc_td_36_progress_notify(uds_client *udsc)
 
     if (udsc->service_36_transfer_progress_cb) {        
         ydm_tv_get(&tv_sec, &tv_usec);
-        udsc->service_36_transfer_progress_cb(udsc->service_36_transfer_progress_arg, udsc->id, udsc->common_var.fileSize, \
-            udsc->common_var.fileTransferTotalSize, \
+        udsc->service_36_transfer_progress_cb(udsc->service_36_transfer_progress_arg, udsc->id, udsc->common_var.file_size, \
+            udsc->common_var.file_transfer_total_size, \
             (tv_sec * 1000 + tv_usec / 1000) - udsc->td_36_start_time);
     }
 }
@@ -321,10 +321,10 @@ static void udsc_service_request_preprocessor(uds_client *udsc)
     
     if (item->sid == UDS_SERVICES_SA) {
         if (item->sub % 2 == 0) {            
-            YByteArrayClear(item->request_byte);
-            YByteArrayAppendChar(item->request_byte, UDS_SERVICES_SA);        
-            YByteArrayAppendChar(item->request_byte, item->sub);
-            YByteArrayAppendArray(item->request_byte, udsc->common_var.key_byte);
+            y_byte_array_clear(item->request_byte);
+            y_byte_array_append_char(item->request_byte, UDS_SERVICES_SA);        
+            y_byte_array_append_char(item->request_byte, item->sub);
+            y_byte_array_append_array(item->request_byte, udsc->common_var.key_byte);
         }
     }
     else if (item->sid == UDS_SERVICES_TD) {
@@ -340,23 +340,23 @@ static void udsc_service_request_preprocessor(uds_client *udsc)
         
         if (udsc->common_var.ff_cache_buff) {
             /* 文件已经被全部读入内存中，只需要在内存中取即可 */
-            if ((udsc->common_var.fileSize - \
-                udsc->common_var.fileTransferTotalSize) > \
-                (udsc->common_var.maxNumberOfBlockLength - 2)) {
-                rsize = udsc->common_var.maxNumberOfBlockLength - 2;
+            if ((udsc->common_var.file_size - \
+                udsc->common_var.file_transfer_total_size) > \
+                (udsc->common_var.max_number_of_block_length - 2)) {
+                rsize = udsc->common_var.max_number_of_block_length - 2;
             }
             else {
-                rsize = udsc->common_var.fileSize - udsc->common_var.fileTransferTotalSize;
+                rsize = udsc->common_var.file_size - udsc->common_var.file_transfer_total_size;
             }            
             udsc->common_var.td_buff = udsc->common_var.ff_cache_buff + \
-                udsc->common_var.fileTransferTotalSize;
+                udsc->common_var.file_transfer_total_size;
         }
         else {
             /* 需要从文件内依次读取文件数据 */
             if (udsc->common_var.td_buff && udsc->common_var.filefd) {
                 rsize = fread(udsc->common_var.td_buff, 1, \
-                    udsc->common_var.maxNumberOfBlockLength - 2, udsc->common_var.filefd);
-                if (rsize != udsc->common_var.maxNumberOfBlockLength - 2) {
+                    udsc->common_var.max_number_of_block_length - 2, udsc->common_var.filefd);
+                if (rsize != udsc->common_var.max_number_of_block_length - 2) {
                     /* 文件读完之后及时关闭文件 */
                     fclose(udsc->common_var.filefd);
                     udsc->common_var.filefd = NULL;
@@ -366,14 +366,14 @@ static void udsc_service_request_preprocessor(uds_client *udsc)
 
         if (rsize > 0) {
             /* 从文件内获取到文件数据成功 */
-            YByteArrayClear(item->request_byte);
-            YByteArrayAppendChar(item->request_byte, UDS_SERVICES_TD);
-            YByteArrayAppendChar(item->request_byte, udsc->common_var.fileTransferCount);
-            YByteArrayAppendNChar(item->request_byte, udsc->common_var.td_buff, rsize);
+            y_byte_array_clear(item->request_byte);
+            y_byte_array_append_char(item->request_byte, UDS_SERVICES_TD);
+            y_byte_array_append_char(item->request_byte, udsc->common_var.file_transfer_count);
+            y_byte_array_append_nchar(item->request_byte, udsc->common_var.td_buff, rsize);
         }
         else {
             log_w("Failed to read the file. The planned read %d bytes was actually read %d bytes", \
-                udsc->common_var.maxNumberOfBlockLength - 2, (int)rsize);
+                udsc->common_var.max_number_of_block_length - 2, (int)rsize);
         }
         /* 启动传输进度通告定时器 */
         if (udsc->service_36_transfer_progress_cb && udsc->td_36_progress_interval > 0 \
@@ -415,10 +415,10 @@ static void udsc_sent_data_statis(uds_client *udsc, int size)
 static void udsc_service_request_handler(uds_client *udsc)
 {
     yint32 sentbyte = -1;
-    BOOLEAN isfail = false;
+    boolean isfail = false;
     service_item *item = NULL;
 
-    log_put_mdc(DM_DIAG_MASTER_MDC_KEY, udsc->om_name);
+    log_put_mdc(DM_DIAG_MASTER_MDC_KEY, udsc->dm_name);
     log_put_mdc(DM_UDSC_MDC_KEY, udsc->udsc_name);
     /* 没有诊断项需要处理，直接返回 */
     if (!udsc_service_isactive(udsc)) {
@@ -427,7 +427,7 @@ static void udsc_service_request_handler(uds_client *udsc)
     }
     log_d("UDS Service request start");
     /* 刷新诊断仪在线发送定时器 */
-    if (udsc->tpEnable && udsc->isTpRefresh) {
+    if (udsc->tester_present_enable && udsc->is_tester_present_refresh) {
         /* 基本不会有需求需要进来这里处理 */
         /* 真正升级的时候需要周期的发送，让所有设备保持在指定会话模式下 */
         udsc_service_tester_present_refresh(udsc);
@@ -443,21 +443,21 @@ static void udsc_service_request_handler(uds_client *udsc)
             udsc_service_request_preprocessor(udsc);
             /* 找到需要执行的诊断服务项，开始执行这个诊断服务项 */   
             if (udsc->udsc_request_transfer_cb) {
-                udsc_sent_data_statis(udsc, YByteArrayCount(item->request_byte));
+                udsc_sent_data_statis(udsc, y_byte_array_count(item->request_byte));
                 sentbyte = udsc->udsc_request_transfer_cb(udsc->id, udsc->udsc_request_transfer_arg, \
-                    YByteArrayConstData(item->request_byte), YByteArrayCount(item->request_byte), \
+                    y_byte_array_const_data(item->request_byte), y_byte_array_count(item->request_byte), \
                     item->sa, item->ta, item->timeout);
             }
 #ifdef __HAVE_UDS_PROTOCOL_ANALYSIS__
             if (udsc->uds_msg_parse_enable) {
-                yuds_protocol_parse(YByteArrayConstData(item->request_byte), YByteArrayCount(item->request_byte));
+                yuds_protocol_parse(y_byte_array_const_data(item->request_byte), y_byte_array_count(item->request_byte));
             }
 #endif /* __HAVE_UDS_PROTOCOL_ANALYSIS__ */            
             /* 诊断服务发送请求失败 */
-            if (sentbyte != YByteArrayCount(item->request_byte)) {
+            if (sentbyte != y_byte_array_count(item->request_byte)) {
                 log_e("Sent UDS Service request fail %d", sentbyte);
-                const unsigned char *msg = YByteArrayConstData(item->request_byte);
-                int msglen = YByteArrayCount(item->request_byte);
+                const unsigned char *msg = y_byte_array_const_data(item->request_byte);
+                int msglen = y_byte_array_count(item->request_byte);
                 log_hex_e("UDS Service request", msg, msglen);
                 isfail = true;
             }
@@ -494,7 +494,7 @@ REQUEST_FINISH:
             if (udsc->udsc_task_end_cb) {                
                 item = udsc_active_service_item(udsc);
                 udsc->udsc_task_end_cb(udsc, UDSC_SENT_ERROR_FINISH, udsc->udsc_task_end_arg, \
-                    YByteArrayConstData(item->request_byte), YByteArrayCount(item->request_byte), 0, 0);            
+                    y_byte_array_const_data(item->request_byte), y_byte_array_count(item->request_byte), 0, 0);            
                 udsc_run_time_total_statis(udsc);
                 yudsc_runtime_data_statis_get(udsc, 0);
             }            
@@ -522,12 +522,12 @@ static void udsc_service_27_sa_response_handler(uds_client *udsc, yuint8 *data, 
             seed_size = stream_left_len(&sp);
             stream_nbyte_read(&sp, seed, MIN(sizeof(seed), seed_size));
             log_hex_d("Request seed ", seed, seed_size);
-            YByteArrayClear(udsc->common_var.key_byte);
+            y_byte_array_clear(udsc->common_var.key_byte);
             if (item->ac_27.key_callback) {
                 item->ac_27.key_callback(seed, sizeof(seed), sub, (const char *)udsc->id, key, &key_size);
                 if (key_size <= sizeof(key)) {
                     log_hex_d("Request key ", key, key_size);
-                    YByteArrayAppendNChar(udsc->common_var.key_byte, key, key_size);
+                    y_byte_array_append_nchar(udsc->common_var.key_byte, key, key_size);
                 }
             }
             if (udsc->security_access_keygen_cb) {
@@ -605,31 +605,31 @@ static int udsc_service_36_td_config_init(uds_client *udsc)
     }
 
     /* 为了兼容特殊情况做的处理 */
-    if (udsc->common_var.maxNumberOfBlockLength == 0) {
-        udsc->common_var.maxNumberOfBlockLength = \
-            td_36_item->td_36.maxNumberOfBlockLength;
+    if (udsc->common_var.max_number_of_block_length == 0) {
+        udsc->common_var.max_number_of_block_length = \
+            td_36_item->td_36.max_number_of_block_length;
     }
     
     /* 最大传输块长度数据是否合法 */
-    if (udsc->common_var.maxNumberOfBlockLength == 0) {
-        log_w("maxNumberOfBlockLength value zero error");
+    if (udsc->common_var.max_number_of_block_length == 0) {
+        log_w("max_number_of_block_length value zero error");
         return -3;
     }
 
     /* 比较配置的maxNumberOfBlockLength和34,36响应的取小的那一个 */
-    if (td_36_item->td_36.maxNumberOfBlockLength > 0) {
-        udsc->common_var.maxNumberOfBlockLength = \
-        udsc->common_var.maxNumberOfBlockLength > td_36_item->td_36.maxNumberOfBlockLength ? \
-        td_36_item->td_36.maxNumberOfBlockLength : udsc->common_var.maxNumberOfBlockLength;
+    if (td_36_item->td_36.max_number_of_block_length > 0) {
+        udsc->common_var.max_number_of_block_length = \
+        udsc->common_var.max_number_of_block_length > td_36_item->td_36.max_number_of_block_length ? \
+        td_36_item->td_36.max_number_of_block_length : udsc->common_var.max_number_of_block_length;
     }
 
     /* 不能超过进程间通信buff长度 */
-    if (udsc->common_var.maxNumberOfBlockLength > IPC_TX_BUFF_SIZE - \
+    if (udsc->common_var.max_number_of_block_length > IPC_TX_BUFF_SIZE - \
         SERVICE_INDICATION_PAYLOAD_OFFSET - DM_IPC_EVENT_MSG_SIZE) {
-        log_w("maxNumberOfBlockLength %d  too long", udsc->common_var.maxNumberOfBlockLength);
-        udsc->common_var.maxNumberOfBlockLength = IPC_TX_BUFF_SIZE - \
+        log_w("max_number_of_block_length %d  too long", udsc->common_var.max_number_of_block_length);
+        udsc->common_var.max_number_of_block_length = IPC_TX_BUFF_SIZE - \
         SERVICE_INDICATION_PAYLOAD_OFFSET - DM_IPC_EVENT_MSG_SIZE;
-        log_w("maxNumberOfBlockLength Truncate into %d", udsc->common_var.maxNumberOfBlockLength);
+        log_w("max_number_of_block_length Truncate into %d", udsc->common_var.max_number_of_block_length);
     }
     
     /* 文件存在打开文件 */
@@ -640,27 +640,27 @@ static int udsc_service_36_td_config_init(uds_client *udsc)
     }
     log_i("Open file => %s success", td_36_item->td_36.local_path);
 
-    udsc->common_var.fileTransferCount = 1; /* 序列号1开始 */
-    udsc->common_var.fileTransferTotalSize = 0;
+    udsc->common_var.file_transfer_count = 1; /* 序列号1开始 */
+    udsc->common_var.file_transfer_total_size = 0;
     /* 获取需要传输的文件大小 */
     if (stat(td_36_item->td_36.local_path, &file_info) != 0) {
         log_f("Failed to obtain the file(%s) size", td_36_item->td_36.local_path);
         return -5;
     }
-    udsc->common_var.fileSize = file_info.st_size;
+    udsc->common_var.file_size = file_info.st_size;
     
     udsc_service_36_td_file_cache_buff_free(udsc);
     /* 如果文件小于某一大小，直接读出文件所有内容至内存 */
-    if (udsc->common_var.fileSize <= FIRMWARE_FILE_CACHE_BUFF_MAX) {
-        log_i("Start to malloc for file cache buff size %d", udsc->common_var.fileSize);
-        udsc->common_var.ff_cache_buff = ymalloc(udsc->common_var.fileSize);
+    if (udsc->common_var.file_size <= FIRMWARE_FILE_CACHE_BUFF_MAX) {
+        log_i("Start to malloc for file cache buff size %d", udsc->common_var.file_size);
+        udsc->common_var.ff_cache_buff = ymalloc(udsc->common_var.file_size);
         if (!udsc->common_var.ff_cache_buff) {
             log_f("Description Failed to malloc");
         }
         else {            
             rsize = fread(udsc->common_var.ff_cache_buff, 1, \
-                udsc->common_var.fileSize, udsc->common_var.filefd);
-            if (udsc->common_var.fileSize != rsize) {
+                udsc->common_var.file_size, udsc->common_var.filefd);
+            if (udsc->common_var.file_size != rsize) {
                 log_f("Failed to read the file into memory");
                 /* 一次性读取文件失败，释放内存转而进行依次文件读取 */
                 yfree(udsc->common_var.ff_cache_buff);
@@ -676,18 +676,18 @@ static int udsc_service_36_td_config_init(uds_client *udsc)
     /* 不一次读出文件到内存，就在每次发送36服务的时候读取文件 */
     if (udsc->common_var.ff_cache_buff == NULL) {
         /* 申请36服务文件读取缓冲区 */
-        udsc->common_var.td_buff = ymalloc(udsc->common_var.maxNumberOfBlockLength);
+        udsc->common_var.td_buff = ymalloc(udsc->common_var.max_number_of_block_length);
         if (udsc->common_var.td_buff == NULL) {
-            log_f("Malloc size %d failed", udsc->common_var.maxNumberOfBlockLength);        
+            log_f("Malloc size %d failed", udsc->common_var.max_number_of_block_length);        
             return -6;
         }
     }
     td_36_item->td_36.is_retrans = false;
 
-    log_i("fileTransferCount: %d", udsc->common_var.fileTransferCount);    
-    log_i("fileTransferTotalSize: %d", udsc->common_var.fileTransferTotalSize);    
-    log_i("fileSize: %d", udsc->common_var.fileSize);    
-    log_i("maxNumberOfBlockLength: %d", udsc->common_var.maxNumberOfBlockLength);
+    log_i("file_transfer_count: %d", udsc->common_var.file_transfer_count);    
+    log_i("file_transfer_total_size: %d", udsc->common_var.file_transfer_total_size);    
+    log_i("file_size: %d", udsc->common_var.file_size);    
+    log_i("max_number_of_block_length: %d", udsc->common_var.max_number_of_block_length);
 
     return 0;
 }
@@ -696,27 +696,27 @@ static void udsc_service_38_rft_response_handler(uds_client *udsc, yuint8 *data,
 {
     stream_t sp;
     int nbyte = 0;
-    yuint8 modeOfOperation = 0;
+    yuint8 mode_of_operation = 0;
     yuint8 lengthFormatIdentifier = 0;
     yuint8 byte = 0;
-    yuint8 dataFormatIdentifier = 0;
+    yuint8 data_format_identifier = 0;
 
     if (!udsc_service_negative_response(data, size)) {
         stream_init(&sp, data, size);
         stream_byte_read(&sp); /* 解析出SID */
-        modeOfOperation = stream_byte_read(&sp);
-        if (modeOfOperation == UDS_RFT_MODE_ADD_FILE || \
-            modeOfOperation == UDS_RFT_MODE_REPLACE_FILE) {
+        mode_of_operation = stream_byte_read(&sp);
+        if (mode_of_operation == UDS_RFT_MODE_ADD_FILE || \
+            mode_of_operation == UDS_RFT_MODE_REPLACE_FILE) {
             lengthFormatIdentifier = stream_byte_read(&sp);
             for (nbyte = 0; nbyte < lengthFormatIdentifier; nbyte++) {
                 byte = 0;
                 byte = stream_byte_read(&sp);
-                udsc->common_var.maxNumberOfBlockLength |=  byte << ((lengthFormatIdentifier - nbyte - 1) * 8);
+                udsc->common_var.max_number_of_block_length |=  byte << ((lengthFormatIdentifier - nbyte - 1) * 8);
             }
-            dataFormatIdentifier = stream_byte_read(&sp);
-            Y_UNUSED(dataFormatIdentifier);
+            data_format_identifier = stream_byte_read(&sp);
+            Y_UNUSED(data_format_identifier);
         }
-        log_i("maxNumberOfBlockLength => %d", udsc->common_var.maxNumberOfBlockLength);
+        log_i("max_number_of_block_length => %d", udsc->common_var.max_number_of_block_length);
         /* 设置和初始化36服务将使用到的参数 */
         if (udsc_surplus_service_container(udsc, UDS_SERVICES_TD)) {
             udsc_service_36_td_config_init(udsc);
@@ -742,9 +742,9 @@ static void udsc_service_34_rd_response_handler(uds_client *udsc, yuint8 *data, 
             yuint8 byte = 0;
 
             byte = stream_byte_read(&sp);
-            udsc->common_var.maxNumberOfBlockLength |=  byte << ((lengthFormatIdentifier - nbyte - 1) * 8);
+            udsc->common_var.max_number_of_block_length |=  byte << ((lengthFormatIdentifier - nbyte - 1) * 8);
         }
-        log_i("maxNumberOfBlockLength => %d", udsc->common_var.maxNumberOfBlockLength);
+        log_i("max_number_of_block_length => %d", udsc->common_var.max_number_of_block_length);
         /* 设置和初始化36服务将使用到的参数 */
         if (udsc_surplus_service_container(udsc, UDS_SERVICES_TD)) {
             udsc_service_36_td_config_init(udsc);
@@ -757,7 +757,7 @@ static void udsc_service_34_rd_response_handler(uds_client *udsc, yuint8 *data, 
 }
 
 /* 处理36服务重传 */
-static BOOLEAN udsc_service_36_td_retrans_handler(uds_client *udsc)
+static boolean udsc_service_36_td_retrans_handler(uds_client *udsc)
 {
     service_item *item = udsc_active_service_item(udsc);
 
@@ -777,7 +777,7 @@ static BOOLEAN udsc_service_36_td_retrans_handler(uds_client *udsc)
     else {
         /* 尝试进行重传36报文 */
         item->td_36.is_retrans = true; /* 标记开始重传 */
-        log_i("retransmit 36 service count %d", udsc->common_var.fileTransferCount);
+        log_i("retransmit 36 service count %d", udsc->common_var.file_transfer_count);
         udsc_curr_service_keep(udsc);
     }
 
@@ -794,28 +794,28 @@ static void udsc_service_36_td_response_handler(uds_client *udsc, yuint8 *data, 
         udsc_service_36_td_retrans_handler(udsc);
     }
     else {
-        if (size != 2 || data[1] != udsc->common_var.fileTransferCount) {
+        if (size != 2 || data[1] != udsc->common_var.file_transfer_count) {
             /* 正响应不符合要求尝试进行重传 */ 
             log_i("The 36 service positive response does not match");
             udsc_service_36_td_retrans_handler(udsc);
         }
         else {
             item->td_36.rt_cnt = 0; /* 重传次数清除 */
-            udsc->common_var.fileTransferCount++; /* 序列号累加 */
-            udsc->common_var.fileTransferTotalSize += (udsc->common_var.maxNumberOfBlockLength - 2);
-            if (udsc->common_var.fileTransferTotalSize > udsc->common_var.fileSize) {
-                udsc->common_var.fileTransferTotalSize = udsc->common_var.fileSize;
+            udsc->common_var.file_transfer_count++; /* 序列号累加 */
+            udsc->common_var.file_transfer_total_size += (udsc->common_var.max_number_of_block_length - 2);
+            if (udsc->common_var.file_transfer_total_size > udsc->common_var.file_size) {
+                udsc->common_var.file_transfer_total_size = udsc->common_var.file_size;
             }
-            log_d("fileTransferTotalSize => %d fileSize => %d", \
-                    udsc->common_var.fileTransferTotalSize, udsc->common_var.fileSize);
-            if (udsc->common_var.fileTransferTotalSize >= udsc->common_var.fileSize) {
-                log_d("The file has been transferred fileTransferTotalSize => %d fileSize => %d", \
-                    udsc->common_var.fileTransferTotalSize, udsc->common_var.fileSize);                
+            log_d("file_transfer_total_size => %d file_size => %d", \
+                    udsc->common_var.file_transfer_total_size, udsc->common_var.file_size);
+            if (udsc->common_var.file_transfer_total_size >= udsc->common_var.file_size) {
+                log_d("The file has been transferred file_transfer_total_size => %d file_size => %d", \
+                    udsc->common_var.file_transfer_total_size, udsc->common_var.file_size);                
                 if (udsc->common_var.ff_cache_buff || \
                     udsc->common_var.filefd) {
                     /* 传输完成后清除临时数据 */
-                    YByteArrayClear(item->request_byte);
-                    YByteArrayAppendChar(item->request_byte, UDS_SERVICES_TD);
+                    y_byte_array_clear(item->request_byte);
+                    y_byte_array_append_char(item->request_byte, UDS_SERVICES_TD);
                 }
                 /* 文件已经传输完成 */
                 udsc_service_36_td_file_close(udsc);
@@ -902,7 +902,7 @@ static void udsc_service_response_timeout_handler(uds_client *udsc)
     }
 }
 
-BOOLEAN udsc_is_hex_digit(char c) 
+boolean udsc_is_hex_digit(char c) 
 {  
     if ((c >= '0' && c <= '9') || 
         (c >= 'a' && c <= 'f') ||   
@@ -917,7 +917,7 @@ BOOLEAN udsc_is_hex_digit(char c)
 static void udsc_service_match_response_expect(uds_client *udsc, service_response_stat stat, yuint32 sa, yuint32 ta, yuint8 *data, yuint32 size)
 {
     int arrindex = 0;
-    BOOLEAN ismatch = false;
+    boolean ismatch = false;
     service_item *item = udsc_active_service_item(udsc);
 
     if (stat == SERVICE_RESPONSE_NORMAL && \
@@ -967,7 +967,7 @@ static void udsc_service_match_response_expect(uds_client *udsc, service_respons
 
         for (arrindex = 0; arrindex < sizeof(item->expect_bytes) / sizeof(item->expect_bytes[0]) && \
                                           item->expect_bytes[arrindex]; arrindex++) {
-            if (YByteArrayCharEqual(item->expect_bytes[arrindex], data, size)) {
+            if (y_byte_array_char_equal(item->expect_bytes[arrindex], data, size)) {
                 ismatch = true;
             }
         }
@@ -992,7 +992,7 @@ static void udsc_service_match_response_expect(uds_client *udsc, service_respons
 static void udsc_service_match_finish_rule(uds_client *udsc, service_response_stat stat, yuint32 sa, yuint32 ta, yuint8 *data, yuint32 size)
 {
     int arrindex = 0;
-    BOOLEAN ismatch = false;
+    boolean ismatch = false;
     service_item *item = udsc_active_service_item(udsc);
 
     if (item->finish_rule == FINISH_DEFAULT_SETTING) {
@@ -1004,7 +1004,7 @@ static void udsc_service_match_finish_rule(uds_client *udsc, service_response_st
         /* 匹配到了就要退出当前服务执行，没有匹配到了就要保持当前服务执行 */
         for (arrindex = 0; arrindex < sizeof(item->finish_bytes) / sizeof(item->finish_bytes[0]) && \
                                           item->finish_bytes[arrindex]; arrindex++) {
-            if (YByteArrayCharEqual(item->finish_bytes[arrindex], data, size)) {
+            if (y_byte_array_char_equal(item->finish_bytes[arrindex], data, size)) {
                 ismatch = true;
             }
         }
@@ -1027,7 +1027,7 @@ static void udsc_service_match_finish_rule(uds_client *udsc, service_response_st
         /* 没匹配到预期设置响应退出当前服务执行，匹配到了就要保持当前服务执行 */
         for (arrindex = 0; arrindex < sizeof(item->finish_bytes) / sizeof(item->finish_bytes[0]) && \
                                           item->finish_bytes[arrindex]; arrindex++) {
-            if (YByteArrayCharEqual(item->finish_bytes[arrindex], data, size)) {
+            if (y_byte_array_char_equal(item->finish_bytes[arrindex], data, size)) {
                 ismatch = true;
             }
         }
@@ -1146,7 +1146,7 @@ static void udsc_service_response_finish(uds_client *udsc, service_response_stat
     yuint32 fcode = UDSC_NORMAL_FINISH;
     service_item *item = NULL;
 
-    log_put_mdc(DM_DIAG_MASTER_MDC_KEY, udsc->om_name);
+    log_put_mdc(DM_DIAG_MASTER_MDC_KEY, udsc->dm_name);
     log_put_mdc(DM_UDSC_MDC_KEY, udsc->udsc_name);
     /* 没有诊断项需要处理，直接返回 */
     if (!udsc_service_isactive(udsc)) {        
@@ -1198,10 +1198,10 @@ static void udsc_service_response_finish(uds_client *udsc, service_response_stat
         data && size > 0) {
         item = udsc_active_service_item(udsc);
         if (item->response_byte == NULL) {
-            item->response_byte = YByteArrayNew();
+            item->response_byte = y_byte_array_new();
         }
-        YByteArrayClear(item->response_byte);
-        YByteArrayAppendNChar(item->response_byte, data, size);
+        y_byte_array_clear(item->response_byte);
+        y_byte_array_append_nchar(item->response_byte, data, size);
     }
         
     udsc_service_response_wait_stop(udsc); /* 已经收到应答，停止应答超时定时器 */
@@ -1292,7 +1292,7 @@ RESPONSE_FINISH:
                 log_i("UDS services finish callback");
                 item = udsc_active_service_item(udsc);
                 udsc->udsc_task_end_cb(udsc, fcode, udsc->udsc_task_end_arg, \
-                    YByteArrayConstData(item->request_byte), YByteArrayCount(item->request_byte), data, size);
+                    y_byte_array_const_data(item->request_byte), y_byte_array_count(item->request_byte), data, size);
                 udsc_run_time_total_statis(udsc);
                 yudsc_runtime_data_statis_get(udsc, 0);
             }            
@@ -1317,25 +1317,25 @@ static void udsc_service_item_destroy(service_item **item)
             yfree((*item)->desc);
             (*item)->desc = NULL;
         }
-        YByteArrayDelete((*item)->request_byte);
-        YByteArrayDelete((*item)->expect_byte);
+        y_byte_array_delete((*item)->request_byte);
+        y_byte_array_delete((*item)->expect_byte);
         for (arrindex = 0; arrindex < sizeof((*item)->expect_bytes) / sizeof((*item)->expect_bytes[0]) && \
                                         (*item)->expect_bytes[arrindex]; arrindex++) {
-            YByteArrayDelete((*item)->expect_bytes[arrindex]);
+            y_byte_array_delete((*item)->expect_bytes[arrindex]);
         }        
         for (arrindex = 0; arrindex < sizeof((*item)->finish_bytes) / sizeof((*item)->finish_bytes[0]) && \
                                         (*item)->finish_bytes[arrindex]; arrindex++) {
-            YByteArrayDelete((*item)->finish_bytes[arrindex]);
+            y_byte_array_delete((*item)->finish_bytes[arrindex]);
         }
-        YByteArrayDelete((*item)->finish_byte);
-        YByteArrayDelete((*item)->variable_byte);
-        YByteArrayDelete((*item)->response_byte);
+        y_byte_array_delete((*item)->finish_byte);
+        y_byte_array_delete((*item)->variable_byte);
+        y_byte_array_delete((*item)->response_byte);
         if ((*item)->td_36.local_path) {
             yfree((*item)->td_36.local_path);
         }
         if ((*item)->rft_38) {
-            if ((*item)->rft_38->filePathAndName) {
-                yfree((*item)->rft_38->filePathAndName);
+            if ((*item)->rft_38->file_path_and_name) {
+                yfree((*item)->rft_38->file_path_and_name);
             }
             yfree((*item)->rft_38);
         }
@@ -1409,7 +1409,7 @@ static void udsc_tester_present_callback(struct ev_loop *loop, ev_timer *w, int 
 {
     uds_client* udsc = container_of(w, uds_client, testerPresent_watcher);
     if (udsc->udsc_request_transfer_cb) {
-        udsc->udsc_request_transfer_cb(udsc->id, udsc->udsc_request_transfer_arg, (yuint8 *)"\x3e\x80", 2, udsc->tpsa, udsc->tpta, 0);
+        udsc->udsc_request_transfer_cb(udsc->id, udsc->udsc_request_transfer_arg, (yuint8 *)"\x3e\x80", 2, udsc->tester_present_sa, udsc->tester_present_ta, 0);
     }
 }
 
@@ -1421,14 +1421,14 @@ static void udsc_td_36_progress_notify_callback(struct ev_loop *loop, ev_timer *
 
 void udsc_common_var_reset(uds_client *udsc)
 {
-    udsc->common_var.fileTransferCount = 0;
-    udsc->common_var.fileTransferTotalSize = 0;
-    udsc->common_var.fileSize = 0;
-    udsc->common_var.maxNumberOfBlockLength = 0;
+    udsc->common_var.file_transfer_count = 0;
+    udsc->common_var.file_transfer_total_size = 0;
+    udsc->common_var.file_size = 0;
+    udsc->common_var.max_number_of_block_length = 0;
     udsc_service_36_td_file_cache_buff_free(udsc);
     udsc_service_36_td_file_close(udsc);    
-    YByteArrayClear(udsc->common_var.key_byte);
-    YByteArrayClear(udsc->common_var.seed_byte);
+    y_byte_array_clear(udsc->common_var.key_byte);
+    y_byte_array_clear(udsc->common_var.seed_byte);
     udsc->common_var.p2_server_max = 0;
     udsc->common_var.p2_e_server_max = 0;
 }
@@ -1463,11 +1463,11 @@ void udsc_reset(uds_client *udsc)
     udsc->td_36_start_time = 0;
     udsc->td_36_progress_interval = 0;
     udsc_common_var_reset(udsc); /* 公用参数重置 */
-    udsc->tpEnable = false; /* 使能诊断仪在线请求报文 */
-    udsc->isTpRefresh = false; /* 是否被UDS报文刷新定时器 */
-    udsc->tpInterval = 0; /* 发送间隔 unit ms */
-    udsc->tpta = 0; /* 诊断目的地址 */
-    udsc->tpsa = 0; /* 诊断源地址 */
+    udsc->tester_present_enable = false; /* 使能诊断仪在线请求报文 */
+    udsc->is_tester_present_refresh = false; /* 是否被UDS报文刷新定时器 */
+    udsc->tester_present_interval = 0; /* 发送间隔 unit ms */
+    udsc->tester_present_ta = 0; /* 诊断目的地址 */
+    udsc->tester_present_sa = 0; /* 诊断源地址 */
 
     if (udsc->udsc_name) {
         yfree(udsc->udsc_name);
@@ -1481,7 +1481,7 @@ void yudsc_ev_loop_set(uds_client* udsc, struct ev_loop* loop)
     udsc->loop = loop;
 }
 
-static BOOLEAN udsc_service_item_capacity_init(uds_client *udsc, int size)
+static boolean udsc_service_item_capacity_init(uds_client *udsc, int size)
 {
     int ii = 0;
     void *tp = NULL;
@@ -1538,8 +1538,8 @@ uds_client *yudsc_create()
         return NULL;
     }
 
-    udsc->common_var.seed_byte = YByteArrayNew();
-    udsc->common_var.key_byte = YByteArrayNew();
+    udsc->common_var.seed_byte = y_byte_array_new();
+    udsc->common_var.key_byte = y_byte_array_new();
 
     udsc->common_var.filefd = NULL;
     udsc->common_var.td_buff = NULL;
@@ -1554,7 +1554,7 @@ uds_client *yudsc_create()
 }
 
 /* 将UDS客户端复原成刚创建时候的状态 */
-BOOLEAN yudsc_reset(uds_client *udsc) 
+boolean yudsc_reset(uds_client *udsc) 
 {
     if (udsc_service_isactive(udsc)) {
         log_w("The uds client is active and cannot be reset");
@@ -1566,7 +1566,7 @@ BOOLEAN yudsc_reset(uds_client *udsc)
 }
 
 /* 销毁uds客户端 */
-BOOLEAN yudsc_destroy(uds_client *udsc)
+boolean yudsc_destroy(uds_client *udsc)
 {
     if (udsc_service_isactive(udsc)) {
         log_w("The uds client is active and cannot be destroyed");
@@ -1580,8 +1580,8 @@ BOOLEAN yudsc_destroy(uds_client *udsc)
         udsc->service_items = NULL;
     }
     
-    YByteArrayDelete(udsc->common_var.seed_byte);
-    YByteArrayDelete(udsc->common_var.key_byte);
+    y_byte_array_delete(udsc->common_var.seed_byte);
+    y_byte_array_delete(udsc->common_var.key_byte);
 
     memset(udsc, 0, sizeof(*udsc));
     yfree(udsc);
@@ -1592,7 +1592,7 @@ BOOLEAN yudsc_destroy(uds_client *udsc)
 /*
     诊断服务项是否在执行中
 */
-BOOLEAN yudsc_service_isactive(uds_client *udsc)
+boolean yudsc_service_isactive(uds_client *udsc)
 {
     if (udsc == NULL) {
         log_e("The fatal error parameter cannot be null.");
@@ -1602,7 +1602,7 @@ BOOLEAN yudsc_service_isactive(uds_client *udsc)
     return udsc_service_isactive(udsc);
 }
 
-BOOLEAN yudsc_runtime_data_statis_get(uds_client *udsc, runtime_data_statis_t *rt_data_statis)
+boolean yudsc_runtime_data_statis_get(uds_client *udsc, runtime_data_statis_t *rt_data_statis)
 {
     if (!udsc->runtime_statis_enable) {
         return false;
@@ -1627,9 +1627,9 @@ BOOLEAN yudsc_runtime_data_statis_get(uds_client *udsc, runtime_data_statis_t *r
 /*
     开始执行诊断服务项, 搜索到第一个使能的诊断服务项后返回true
 */
-BOOLEAN yudsc_services_start(uds_client *udsc)
+boolean yudsc_services_start(uds_client *udsc)
 {
-    BOOLEAN start_succ = false;
+    boolean start_succ = false;
     unsigned int tv_sec = 0;
     unsigned int tv_usec = 0;
     int ii = 0;
@@ -1643,7 +1643,7 @@ BOOLEAN yudsc_services_start(uds_client *udsc)
     /* 清除之前保存的响应数据 */
     for (ii = 0; ii < udsc->service_cnt && udsc->service_items[ii]; ii++) {
         if (udsc->service_items[ii]->response_byte) {
-            YByteArrayDelete(udsc->service_items[ii]->response_byte);
+            y_byte_array_delete(udsc->service_items[ii]->response_byte);
             udsc->service_items[ii]->response_byte = NULL;
         }
         udsc->service_items[ii]->status = SERVICE_ITEM_WAIT;
@@ -1662,9 +1662,9 @@ BOOLEAN yudsc_services_start(uds_client *udsc)
         udsc->sindex++;
     }
     /* 需要发送诊断仪在线请求报文 */
-    if (start_succ && udsc->tpEnable) {        
+    if (start_succ && udsc->tester_present_enable) {        
         udsc_service_tester_present_timer_start(udsc);
-        if (udsc->isTpRefresh) {
+        if (udsc->is_tester_present_refresh) {
             log_i("The tester present send cycle is set to diagnostic message refresh");
         }
     }
@@ -1689,7 +1689,7 @@ BOOLEAN yudsc_services_start(uds_client *udsc)
 /*
     停止执行诊断服务项
 */
-BOOLEAN yudsc_services_stop(uds_client *udsc)
+boolean yudsc_services_stop(uds_client *udsc)
 {
     return udsc_services_stop(udsc);
 }
@@ -1725,19 +1725,19 @@ service_item *yudsc_service_item_add(uds_client *udsc, char *desc)
     nitem->tatype = PHYSICAL_ADDRESS;
     nitem->response_rule = NOT_SET_RESPONSE_EXPECT;
     nitem->finish_rule = FINISH_DEFAULT_SETTING;
-    nitem->request_byte = YByteArrayNew();
+    nitem->request_byte = y_byte_array_new();
     if (nitem->request_byte == NULL) {
         log_f("ByteArrayNew error");
     }
-    nitem->expect_byte = YByteArrayNew();
+    nitem->expect_byte = y_byte_array_new();
     if (nitem->expect_byte == NULL) {
         log_f("ByteArrayNew error");
     }
-    nitem->finish_byte = YByteArrayNew();
+    nitem->finish_byte = y_byte_array_new();
     if (nitem->finish_byte == NULL) {
         log_f("ByteArrayNew error");
     }
-    nitem->variable_byte = YByteArrayNew();
+    nitem->variable_byte = y_byte_array_new();
     if (nitem->variable_byte == NULL) {
         log_f("ByteArrayNew error");
     }
@@ -1757,7 +1757,7 @@ service_item *yudsc_service_item_add(uds_client *udsc, char *desc)
 void yudsc_service_item_del(uds_client *udsc, service_item *item)
 {
     int ii = 0;
-    BOOLEAN isfound = false;
+    boolean isfound = false;
 
     if (item == NULL) {
         return ;
@@ -1785,7 +1785,7 @@ void yudsc_service_item_del(uds_client *udsc, service_item *item)
     return ;
  }
 
-BOOLEAN yudsc_loop_stop(uds_client *udsc)
+boolean yudsc_loop_stop(uds_client *udsc)
 {
     udsc_services_stop(udsc);
         
@@ -1795,7 +1795,7 @@ BOOLEAN yudsc_loop_stop(uds_client *udsc)
 /* 
     开始uds客户端的线程循环任务调用一次就可以 
 */
-BOOLEAN yudsc_thread_loop_start(uds_client *udsc)
+boolean yudsc_thread_loop_start(uds_client *udsc)
 {
     
     return true;
@@ -1804,7 +1804,7 @@ BOOLEAN yudsc_thread_loop_start(uds_client *udsc)
 /* 
     开始uds客户端的事件循环任务需要循环调用调用这个函数才行 
 */
-BOOLEAN yudsc_event_loop_start(uds_client *udsc)
+boolean yudsc_event_loop_start(uds_client *udsc)
 {
 
     return true;
@@ -1822,21 +1822,21 @@ void yudsc_task_end_callback_set(uds_client *udsc, udsc_task_end_callback call, 
     udsc->udsc_task_end_arg = arg;
 }
 
-BOOLEAN yudsc_service_request_build(service_item *sitem)
+boolean yudsc_service_request_build(service_item *sitem)
 {
     int n = 0;
 
-    YByteArrayClear(sitem->request_byte);
+    y_byte_array_clear(sitem->request_byte);
 
     /* append sid */
-    YByteArrayAppendChar(sitem->request_byte, sitem->sid);
+    y_byte_array_append_char(sitem->request_byte, sitem->sid);
     if (udsc_service_have_sub(sitem->sid)) {
         /* append subfunction */
         if (sitem->issuppress) {
-            YByteArrayAppendChar(sitem->request_byte, sitem->sub | UDS_SUPPRESS_POS_RSP_MSG_IND_MASK);
+            y_byte_array_append_char(sitem->request_byte, sitem->sub | UDS_SUPPRESS_POS_RSP_MSG_IND_MASK);
         }
         else {
-            YByteArrayAppendChar(sitem->request_byte, sitem->sub);
+            y_byte_array_append_char(sitem->request_byte, sitem->sub);
         }
     }
 
@@ -1844,36 +1844,36 @@ BOOLEAN yudsc_service_request_build(service_item *sitem)
     if (sitem->sid == UDS_SERVICES_RDBI || \
         sitem->sid == UDS_SERVICES_WDBI || \
         sitem->sid == UDS_SERVICES_RC) {
-        YByteArrayAppendChar(sitem->request_byte, sitem->did >> 8 & 0xff);
-        YByteArrayAppendChar(sitem->request_byte, sitem->did & 0xff);
+        y_byte_array_append_char(sitem->request_byte, sitem->did >> 8 & 0xff);
+        y_byte_array_append_char(sitem->request_byte, sitem->did & 0xff);
     }
     else if (sitem->sid == UDS_SERVICES_RFT) {
         if (sitem->rft_38) {
-            YByteArrayAppendChar(sitem->request_byte, sitem->rft_38->modeOfOperation);
-            YByteArrayAppendChar(sitem->request_byte, sitem->rft_38->filePathAndNameLength >> 8 & 0xff);
-            YByteArrayAppendChar(sitem->request_byte, sitem->rft_38->filePathAndNameLength & 0xff);
-            if (sitem->rft_38->filePathAndName) {
-                YByteArrayAppendNChar(sitem->request_byte, \
-                    (unsigned char *)sitem->rft_38->filePathAndName, strlen(sitem->rft_38->filePathAndName));
+            y_byte_array_append_char(sitem->request_byte, sitem->rft_38->mode_of_operation);
+            y_byte_array_append_char(sitem->request_byte, sitem->rft_38->file_path_and_name_length >> 8 & 0xff);
+            y_byte_array_append_char(sitem->request_byte, sitem->rft_38->file_path_and_name_length & 0xff);
+            if (sitem->rft_38->file_path_and_name) {
+                y_byte_array_append_nchar(sitem->request_byte, \
+                    (unsigned char *)sitem->rft_38->file_path_and_name, strlen(sitem->rft_38->file_path_and_name));
             }
-            YByteArrayAppendChar(sitem->request_byte, sitem->rft_38->dataFormatIdentifier);
-            YByteArrayAppendChar(sitem->request_byte, sitem->rft_38->fileSizeParameterLength);
-            for (n = sitem->rft_38->fileSizeParameterLength - 1; n >= 0; n--) {
-                YByteArrayAppendChar(sitem->request_byte, (sitem->rft_38->fileSizeUnCompressed >> (8 * n)) & 0xff);
+            y_byte_array_append_char(sitem->request_byte, sitem->rft_38->data_format_identifier);
+            y_byte_array_append_char(sitem->request_byte, sitem->rft_38->file_size_parameter_length);
+            for (n = sitem->rft_38->file_size_parameter_length - 1; n >= 0; n--) {
+                y_byte_array_append_char(sitem->request_byte, (sitem->rft_38->file_size_uncompressed >> (8 * n)) & 0xff);
             }
-            for (n = sitem->rft_38->fileSizeParameterLength - 1; n >= 0; n--) {
-                YByteArrayAppendChar(sitem->request_byte, (sitem->rft_38->fileSizeCompressed >> (8 * n)) & 0xff);
+            for (n = sitem->rft_38->file_size_parameter_length - 1; n >= 0; n--) {
+                y_byte_array_append_char(sitem->request_byte, (sitem->rft_38->file_size_compressed >> (8 * n)) & 0xff);
             }
         }
     }
     else if (sitem->sid == UDS_SERVICES_RD) {
-        YByteArrayAppendChar(sitem->request_byte, sitem->rd_34.dataFormatIdentifier);
-        YByteArrayAppendChar(sitem->request_byte, sitem->rd_34.addressAndLengthFormatIdentifier);
-        for (n = (sitem->rd_34.addressAndLengthFormatIdentifier >> 4 & 0x0f) - 1; n >= 0; n--) {
-            YByteArrayAppendChar(sitem->request_byte, (sitem->rd_34.memoryAddress >> (8 * n)) & 0xff);
+        y_byte_array_append_char(sitem->request_byte, sitem->rd_34.data_format_identifier);
+        y_byte_array_append_char(sitem->request_byte, sitem->rd_34.address_and_length_format_identifier);
+        for (n = (sitem->rd_34.address_and_length_format_identifier >> 4 & 0x0f) - 1; n >= 0; n--) {
+            y_byte_array_append_char(sitem->request_byte, (sitem->rd_34.memory_address >> (8 * n)) & 0xff);
         }
-        for (n = (sitem->rd_34.addressAndLengthFormatIdentifier & 0x0f) - 1; n >= 0; n--) {
-            YByteArrayAppendChar(sitem->request_byte, (sitem->rd_34.memorySize >> (8 * n)) & 0xff);
+        for (n = (sitem->rd_34.address_and_length_format_identifier & 0x0f) - 1; n >= 0; n--) {
+            y_byte_array_append_char(sitem->request_byte, (sitem->rd_34.memory_size >> (8 * n)) & 0xff);
         }
     }
 
@@ -1882,7 +1882,7 @@ BOOLEAN yudsc_service_request_build(service_item *sitem)
     }
     
     /* append variable byte */
-    YByteArrayAppendArray(sitem->request_byte, sitem->variable_byte);
+    y_byte_array_append_array(sitem->request_byte, sitem->variable_byte);
 
     return true;
 }
@@ -1951,17 +1951,17 @@ void yudsc_service_delay_set(service_item *sitem, yint32 delay)
     VAR_RANGE_LIMIT(sitem->delay, UDS_SERVICE_DELAY_MIN, UDS_SERVICE_DELAY_MAX);
 }
 
-void yudsc_service_suppress_set(service_item *sitem, BOOLEAN b)
+void yudsc_service_suppress_set(service_item *sitem, boolean b)
 {
     sitem->issuppress = b;
 }
 
-void yudsc_service_enable_set(service_item *sitem, BOOLEAN b)
+void yudsc_service_enable_set(service_item *sitem, boolean b)
 {
     sitem->isenable = b;
 }
 
-void yudsc_service_expect_response_set(service_item *sitem, serviceResponseExpect rule, yuint8 *data, yuint32 size)
+void yudsc_service_expect_response_set(service_item *sitem, service_response_expect rule, yuint8 *data, yuint32 size)
 {
     int ii = 0;
     int hexlen = 0;
@@ -1972,7 +1972,7 @@ void yudsc_service_expect_response_set(service_item *sitem, serviceResponseExpec
 
     sitem->response_rule = rule;
     if (data && size > 0) {
-        YByteArrayAppendNChar(sitem->expect_byte, data, size);
+        y_byte_array_append_nchar(sitem->expect_byte, data, size);
         for (ii = 0; ii < size; ii++) {
             if (ydm_common_is_hex_digit(data[ii])) {
                 hexlen++;
@@ -1981,9 +1981,9 @@ void yudsc_service_expect_response_set(service_item *sitem, serviceResponseExpec
             else {                
                 if (hex && (binlen = ydm_common_nhex2bin(binbuf, hex, hexlen, sizeof(binbuf))) > 0) {
                     if (arrcnt < sizeof(sitem->expect_bytes) / sizeof(sitem->expect_bytes[0])) {
-                        sitem->expect_bytes[arrcnt] = YByteArrayNew();
+                        sitem->expect_bytes[arrcnt] = y_byte_array_new();
                         if (sitem->expect_bytes[arrcnt]) {
-                            YByteArrayAppendNChar(sitem->expect_bytes[arrcnt], binbuf, binlen);                            
+                            y_byte_array_append_nchar(sitem->expect_bytes[arrcnt], binbuf, binlen);                            
                             arrcnt++;
                             binlen = 0;
                             memset(binbuf, 0, sizeof(binbuf));
@@ -1997,9 +1997,9 @@ void yudsc_service_expect_response_set(service_item *sitem, serviceResponseExpec
         if (hex && (binlen = ydm_common_nhex2bin(binbuf, hex, hexlen, sizeof(binbuf))) > 0) {
             log_hex_i("", binbuf, binlen);
             if (arrcnt < sizeof(sitem->expect_bytes) / sizeof(sitem->expect_bytes[0])) {
-                sitem->expect_bytes[arrcnt] = YByteArrayNew();
+                sitem->expect_bytes[arrcnt] = y_byte_array_new();
                 if (sitem->expect_bytes[arrcnt]) {
-                    YByteArrayAppendNChar(sitem->expect_bytes[arrcnt], binbuf, binlen);                    
+                    y_byte_array_append_nchar(sitem->expect_bytes[arrcnt], binbuf, binlen);                    
                     arrcnt++;
                     binlen = 0;
                     memset(binbuf, 0, sizeof(binbuf));                    
@@ -2009,7 +2009,7 @@ void yudsc_service_expect_response_set(service_item *sitem, serviceResponseExpec
     }
 }
 
-void yudsc_service_finish_byte_set(service_item *sitem, serviceFinishCondition rule, yuint8 *data, yuint32 size)
+void yudsc_service_finish_byte_set(service_item *sitem, service_finish_condition rule, yuint8 *data, yuint32 size)
 {
     int ii = 0;
     int hexlen = 0;
@@ -2020,7 +2020,7 @@ void yudsc_service_finish_byte_set(service_item *sitem, serviceFinishCondition r
 
     sitem->finish_rule = rule;
     if (data && size > 0) {
-        YByteArrayAppendNChar(sitem->finish_byte, data, size);
+        y_byte_array_append_nchar(sitem->finish_byte, data, size);
         for (ii = 0; ii < size; ii++) {
             if (ydm_common_is_hex_digit(data[ii])) {
                 hexlen++;
@@ -2029,9 +2029,9 @@ void yudsc_service_finish_byte_set(service_item *sitem, serviceFinishCondition r
             else {                
                 if (hex && (binlen = ydm_common_nhex2bin(binbuf, hex, hexlen, sizeof(binbuf))) > 0) {
                     if (arrcnt < sizeof(sitem->finish_bytes) / sizeof(sitem->finish_bytes[0])) {
-                        sitem->finish_bytes[arrcnt] = YByteArrayNew();
+                        sitem->finish_bytes[arrcnt] = y_byte_array_new();
                         if (sitem->finish_bytes[arrcnt]) {
-                            YByteArrayAppendNChar(sitem->finish_bytes[arrcnt], binbuf, binlen);                            
+                            y_byte_array_append_nchar(sitem->finish_bytes[arrcnt], binbuf, binlen);                            
                             arrcnt++;
                             binlen = 0;
                             memset(binbuf, 0, sizeof(binbuf));
@@ -2045,9 +2045,9 @@ void yudsc_service_finish_byte_set(service_item *sitem, serviceFinishCondition r
         if (hex && (binlen = ydm_common_nhex2bin(binbuf, hex, hexlen, sizeof(binbuf))) > 0) {
             log_hex_i("", binbuf, binlen);
             if (arrcnt < sizeof(sitem->finish_bytes) / sizeof(sitem->finish_bytes[0])) {
-                sitem->finish_bytes[arrcnt] = YByteArrayNew();
+                sitem->finish_bytes[arrcnt] = y_byte_array_new();
                 if (sitem->finish_bytes[arrcnt]) {
-                    YByteArrayAppendNChar(sitem->finish_bytes[arrcnt], binbuf, binlen);                    
+                    y_byte_array_append_nchar(sitem->finish_bytes[arrcnt], binbuf, binlen);                    
                     arrcnt++;
                     binlen = 0;
                     memset(binbuf, 0, sizeof(binbuf));                    
@@ -2057,7 +2057,7 @@ void yudsc_service_finish_byte_set(service_item *sitem, serviceFinishCondition r
     }
 }
 
-void yudsc_service_key_set(service_item *sitem, YKey key_callback)
+void yudsc_service_key_set(service_item *sitem, ykey key_callback)
 {
     sitem->ac_27.key_callback = key_callback;
 }
@@ -2093,12 +2093,12 @@ void *yudsc_doip_channel(uds_client *udsc)
 {
     return udsc->doipc_channel;
 }
-void yudsc_runtime_data_statis_enable(uds_client *udsc, BOOLEAN en)
+void yudsc_runtime_data_statis_enable(uds_client *udsc, boolean en)
 {
     udsc->runtime_statis_enable = en;
 }
 
-BOOLEAN yudsc_service_item_capacity_init(uds_client *udsc, int size)
+boolean yudsc_service_item_capacity_init(uds_client *udsc, int size)
 {
     return udsc_service_item_capacity_init(udsc, size);    
 }
@@ -2113,7 +2113,7 @@ int yudsc_security_access_key_set(uds_client *udsc, yuint8 *key, yuint16 key_siz
     service_item *item = NULL;
 
     if (key && udsc->common_var.key_byte) {
-        YByteArrayAppendNChar(udsc->common_var.key_byte, key, key_size);
+        y_byte_array_append_nchar(udsc->common_var.key_byte, key, key_size);
         item = udsc_active_service_item(udsc);
         /* 如果当前活跃的是27的key请求，就直接触发请求任务 */
         if (item) {
@@ -2127,19 +2127,19 @@ int yudsc_security_access_key_set(uds_client *udsc, yuint8 *key, yuint16 key_siz
     return -1;
 }
 
-int yudsc_tester_present_config(uds_client *udsc, yuint8 tpEnable, yuint8 isTpRefresh, yuint32 tpInterval, yuint32 tpta, yuint32 tpsa)
+int yudsc_tester_present_config(uds_client *udsc, yuint8 tester_present_enable, yuint8 is_tester_present_refresh, yuint32 tester_present_interval, yuint32 tester_present_ta, yuint32 tester_present_sa)
 {
-    udsc->tpEnable = tpEnable;
-    udsc->isTpRefresh = isTpRefresh;
-    udsc->tpInterval = tpInterval;
-    udsc->tpta = tpta; 
-    udsc->tpsa = tpsa;  
+    udsc->tester_present_enable = tester_present_enable;
+    udsc->is_tester_present_refresh = is_tester_present_refresh;
+    udsc->tester_present_interval = tester_present_interval;
+    udsc->tester_present_ta = tester_present_ta; 
+    udsc->tester_present_sa = tester_present_sa;  
 
     return 0;
 }
 
 /* 设置列表中的服务项失败是否终止整个任务 */
-int yudsc_fail_abort(uds_client *udsc, BOOLEAN b)
+int yudsc_fail_abort(uds_client *udsc, boolean b)
 {
     udsc->isFailAbort = b;
 
@@ -2158,14 +2158,14 @@ int yudsc_id(uds_client *udsc)
     return udsc->id;
 }
 
-int yudsc_idle_set(uds_client *udsc, BOOLEAN b)
+int yudsc_idle_set(uds_client *udsc, boolean b)
 {
     udsc->isidle = b;
 
     return 0;
 }
 
-BOOLEAN yudsc_is_idle(uds_client *udsc)
+boolean yudsc_is_idle(uds_client *udsc)
 {
     return udsc->isidle;
 }
@@ -2201,17 +2201,17 @@ int yudsc_name_set(uds_client *udsc, char *name)
     return 0;
 }
 
-BOOLEAN yudsc_asc_record_enable(uds_client *udsc)
+boolean yudsc_asc_record_enable(uds_client *udsc)
 {
     return udsc->uds_asc_record_enable;
 }
 
-void yudsc_asc_record_enable_set(uds_client *udsc, BOOLEAN b)
+void yudsc_asc_record_enable_set(uds_client *udsc, boolean b)
 {
     udsc->uds_asc_record_enable = b;
 }
 
-void yudsc_msg_parse_enable_set(uds_client *udsc, BOOLEAN b)
+void yudsc_msg_parse_enable_set(uds_client *udsc, boolean b)
 {
     udsc->uds_msg_parse_enable = b;
 }

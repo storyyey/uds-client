@@ -120,7 +120,7 @@ typedef struct tcs_register_body_s {
 } tcs_register_body_t;
 
 typedef struct terminal_control_service_s {
-    BOOLEAN isruning; /* 成功连接平台正常通信 */
+    boolean isruning; /* 成功连接平台正常通信 */
     struct ev_loop *loop; /* 主事件循环结构体 */
     ev_io tcprecv_watcher; /* 监听TCP读事件 */
     ev_io tcpsend_watcher; /* 监听TCP写事件 */    
@@ -240,7 +240,7 @@ static int tcs_tcp_create()
     return sockfd;
 }
 
-static BOOLEAN tcs_tcp_connect_check(terminal_control_service_t *tcs)
+static boolean tcs_tcp_connect_check(terminal_control_service_t *tcs)
 {
     fd_set writefds;
     fd_set readfds;
@@ -1004,7 +1004,7 @@ int yterminal_control_service_info_get(terminal_control_service_t *tcs, terminal
     return 0;
 }
 
-BOOLEAN yterminal_control_service_info_equal(terminal_control_service_t *tcs, terminal_control_service_info_t *tcs_config)
+boolean yterminal_control_service_info_equal(terminal_control_service_t *tcs, terminal_control_service_info_t *tcs_config)
 {
     if (memcmp(&tcs->tcs_config, tcs_config, sizeof(terminal_control_service_info_t)) == 0) {
         return true;

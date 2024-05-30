@@ -16,5 +16,5 @@ int yterminal_control_service_connect(terminal_control_service_t *tcs);
 int yterminal_control_service_handler_set(terminal_control_service_t *tcs, yuint16 msgid, premote_cmd_handler call, void *argv);
 int yterminal_control_service_info_set(terminal_control_service_t *tcs, terminal_control_service_info_t *tcs_config);
 int yterminal_control_service_info_get(terminal_control_service_t *tcs, terminal_control_service_info_t *tcs_config);
-BOOLEAN yterminal_control_service_info_equal(terminal_control_service_t *tcs, terminal_control_service_info_t *tcs_config);
+boolean yterminal_control_service_info_equal(terminal_control_service_t *tcs, terminal_control_service_info_t *tcs_config);
 #endif /* __YREMOTE_COMMAND_H__ */

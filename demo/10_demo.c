@@ -52,10 +52,10 @@ int main(int argc, char *argv[])
         service.ta = 0x55667788;
         /* 诊断服务ID */
         service.sid = 0x38;
-        service.service_38_rft.modeOfOperation = 0x01;
-        service.service_38_rft.filePathAndNameLength = 10;
-        snprintf(service.service_38_rft.filePathAndName, \
-            sizeof(service.service_38_rft.filePathAndName), "%s", "1111111111111111111111111");
+        service.service_38_rft.mode_of_operation = 0x01;
+        service.service_38_rft.file_path_and_name_length = 10;
+        snprintf(service.service_38_rft.file_path_and_name, \
+            sizeof(service.service_38_rft.file_path_and_name), "%s", "1111111111111111111111111");
         /* 延时多长时间后执行这个诊断服务unit ms */
         service.delay = 500;
         /* 服务响应超时时间unit ms */

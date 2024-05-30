@@ -1,5 +1,5 @@
-#ifndef __YOM_STREAM_H__
-#define __YOM_STREAM_H__
+#ifndef __YDM_STREAM_H__
+#define __YDM_STREAM_H__
 
 typedef struct stream_s {
     unsigned char   *sptr;
@@ -58,4 +58,4 @@ unsigned long stream_le_8byte_read(stream_t *sp);
 
 void stream_nbyte_read(stream_t *sp, unsigned char *Ptr, unsigned int len);
 
-#endif /* __YOM_STREAM_H__ */
+#endif /* __YDM_STREAM_H__ */

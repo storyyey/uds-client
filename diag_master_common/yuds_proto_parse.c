@@ -116,9 +116,9 @@ void yproto_uds_34_rd(cJSON *root, yuint8 *msg, yuint32 size)
 {
     stream_t sp;
     char val[UDS_PROTOCOL_KEY_VAL] = {0};
-    yuint32 memoryAddress = 0;
-    yuint32 memorySize = 0;
-    yuint32 maxNumberOfBlockLength = 0;
+    yuint32 memory_address = 0;
+    yuint32 memory_size = 0;
+    yuint32 max_number_of_block_length = 0;
     int nbyte = 0;
 
     stream_init(&sp, msg, size);
@@ -133,37 +133,37 @@ void yproto_uds_34_rd(cJSON *root, yuint8 *msg, yuint32 size)
             yuint8 byte = 0;
         
             byte = stream_byte_read(&sp);
-            maxNumberOfBlockLength |=  byte << (((lengthFormatIdentifier >> 4 & 0x0f) - nbyte - 1) * 8);
+            max_number_of_block_length |=  byte << (((lengthFormatIdentifier >> 4 & 0x0f) - nbyte - 1) * 8);
         }        
-        cJSON_AddItemToObject(root, "MaxNumberOfBlockLength", cJSON_CreateNumber(maxNumberOfBlockLength));
+        cJSON_AddItemToObject(root, "MaxNumberOfBlockLength", cJSON_CreateNumber(max_number_of_block_length));
     }
     else {
-        yuint8 dataFormatIdentifier = stream_byte_read(&sp);
-        snprintf(val, sizeof(val), "0x%02X", dataFormatIdentifier);
+        yuint8 data_format_identifier = stream_byte_read(&sp);
+        snprintf(val, sizeof(val), "0x%02X", data_format_identifier);
         cJSON_AddItemToObject(root, "DataFormatIdentifier", cJSON_CreateString(val));
-        yuint8 addressAndLengthFormatIdentifier = stream_byte_read(&sp);    
+        yuint8 address_and_length_format_identifier = stream_byte_read(&sp);    
         memset(val, 0, sizeof(val));
-        snprintf(val, sizeof(val), "0x%02X", addressAndLengthFormatIdentifier);
+        snprintf(val, sizeof(val), "0x%02X", address_and_length_format_identifier);
         cJSON_AddItemToObject(root, "AddressAndLengthFormatIdentifier", cJSON_CreateString(val));
         
-        for (nbyte = 0; nbyte < (addressAndLengthFormatIdentifier >> 4 & 0x0f); nbyte++) {
+        for (nbyte = 0; nbyte < (address_and_length_format_identifier >> 4 & 0x0f); nbyte++) {
             yuint8 byte = 0;
 
             byte = stream_byte_read(&sp);
-            memoryAddress |=  byte << (((addressAndLengthFormatIdentifier >> 4 & 0x0f) - nbyte - 1) * 8);
+            memory_address |=  byte << (((address_and_length_format_identifier >> 4 & 0x0f) - nbyte - 1) * 8);
         } 
         memset(val, 0, sizeof(val));
-        snprintf(val, sizeof(val), "0x%08X", memoryAddress);
+        snprintf(val, sizeof(val), "0x%08X", memory_address);
         cJSON_AddItemToObject(root, "MemoryAddress", cJSON_CreateString(val));
 
-        for (nbyte = 0; nbyte < (addressAndLengthFormatIdentifier & 0x0f); nbyte++) {
+        for (nbyte = 0; nbyte < (address_and_length_format_identifier & 0x0f); nbyte++) {
             yuint8 byte = 0;
 
             byte = stream_byte_read(&sp);
-            memorySize |=  byte << (((addressAndLengthFormatIdentifier & 0x0f) - nbyte - 1) * 8);
+            memory_size |=  byte << (((address_and_length_format_identifier & 0x0f) - nbyte - 1) * 8);
         } 
         memset(val, 0, sizeof(val));
-        snprintf(val, sizeof(val), "0x%08X", memorySize);
+        snprintf(val, sizeof(val), "0x%08X", memory_size);
         cJSON_AddItemToObject(root, "MemorySize", cJSON_CreateString(val));
     }
 }
@@ -173,49 +173,49 @@ void yproto_uds_38_rft(cJSON *root, yuint8 *msg, yuint32 size)
     int nbyte = 0;
     stream_t sp;    
     char val[UDS_PROTOCOL_KEY_VAL] = {0};
-    yuint32 fileSizeUnCompressed = 0;
-    yuint32 fileSizeCompressed = 0;
-    yuint32 maxNumberOfBlockLength = 0;
+    yuint32 file_size_uncompressed = 0;
+    yuint32 file_size_compressed = 0;
+    yuint32 max_number_of_block_length = 0;
     yuint32 fileSizeUncompressedOrDirInfoLength = 0;
     yuint16 fileSizeOrDirInfoParameterLength = 0;
-    yuint8 dataFormatIdentifier = 0;
+    yuint8 data_format_identifier = 0;
     yuint8 lengthFormatIdentifier = 0;
-    yuint8 modeOfOperation = 0;
+    yuint8 mode_of_operation = 0;
 
     stream_init(&sp, msg, size);
     yuint8 sid = stream_byte_read(&sp);
 
     if (sid & UDS_REPLY_MASK) {
-        modeOfOperation = stream_byte_read(&sp);
-        cJSON_AddItemToObject(root, "ModeOfOperation", cJSON_CreateString(ydesc_uds_rft_mode_types(modeOfOperation)));
+        mode_of_operation = stream_byte_read(&sp);
+        cJSON_AddItemToObject(root, "ModeOfOperation", cJSON_CreateString(ydesc_uds_rft_mode_types(mode_of_operation)));
 
-        if (modeOfOperation != UDS_RFT_MODE_DELETE_FILE) {
+        if (mode_of_operation != UDS_RFT_MODE_DELETE_FILE) {
             lengthFormatIdentifier = stream_byte_read(&sp);           
             cJSON_AddItemToObject(root, "LengthFormatIdentifier", cJSON_CreateNumber(lengthFormatIdentifier));
         
             for (nbyte = 0; nbyte < lengthFormatIdentifier; nbyte++) {            
                 yuint8 byte = stream_byte_read(&sp);
-                maxNumberOfBlockLength |=  byte << ((lengthFormatIdentifier - nbyte - 1) * 8);
+                max_number_of_block_length |=  byte << ((lengthFormatIdentifier - nbyte - 1) * 8);
             }        
-            cJSON_AddItemToObject(root, "MaxNumberOfBlockLength", cJSON_CreateNumber(maxNumberOfBlockLength));
+            cJSON_AddItemToObject(root, "MaxNumberOfBlockLength", cJSON_CreateNumber(max_number_of_block_length));
         
-            dataFormatIdentifier = stream_byte_read(&sp);   
+            data_format_identifier = stream_byte_read(&sp);   
             memset(val, 0, sizeof(val));
-            snprintf(val, sizeof(val), "0x%02X", dataFormatIdentifier);      
+            snprintf(val, sizeof(val), "0x%02X", data_format_identifier);      
             cJSON_AddItemToObject(root, "DataFormatIdentifier", cJSON_CreateString(val));
         }
 
-        if (modeOfOperation != UDS_RFT_MODE_ADD_FILE && \
-            modeOfOperation != UDS_RFT_MODE_DELETE_FILE && \
-            modeOfOperation != UDS_RFT_MODE_REPLACE_FILE) {
+        if (mode_of_operation != UDS_RFT_MODE_ADD_FILE && \
+            mode_of_operation != UDS_RFT_MODE_DELETE_FILE && \
+            mode_of_operation != UDS_RFT_MODE_REPLACE_FILE) {
             fileSizeOrDirInfoParameterLength = stream_2byte_read(&sp); 
             cJSON_AddItemToObject(root, "FileSizeOrDirInfoParameterLength", cJSON_CreateNumber(fileSizeOrDirInfoParameterLength));
         }
             
-        if (modeOfOperation != UDS_RFT_MODE_ADD_FILE && \
-            modeOfOperation != UDS_RFT_MODE_DELETE_FILE && \
-            modeOfOperation != UDS_RFT_MODE_REPLACE_FILE && \
-            modeOfOperation != UDS_RFT_MODE_READ_DIR) {
+        if (mode_of_operation != UDS_RFT_MODE_ADD_FILE && \
+            mode_of_operation != UDS_RFT_MODE_DELETE_FILE && \
+            mode_of_operation != UDS_RFT_MODE_REPLACE_FILE && \
+            mode_of_operation != UDS_RFT_MODE_READ_DIR) {
             for (nbyte = 0; nbyte < fileSizeOrDirInfoParameterLength; nbyte++) {            
                 yuint8 byte = stream_byte_read(&sp);
                 fileSizeUncompressedOrDirInfoLength |=  byte << ((fileSizeOrDirInfoParameterLength - nbyte - 1) * 8);
@@ -224,42 +224,42 @@ void yproto_uds_38_rft(cJSON *root, yuint8 *msg, yuint32 size)
 
             for (nbyte = 0; nbyte < fileSizeOrDirInfoParameterLength; nbyte++) {            
                 yuint8 byte = stream_byte_read(&sp);
-                fileSizeCompressed |=  byte << ((fileSizeOrDirInfoParameterLength - nbyte - 1) * 8);
+                file_size_compressed |=  byte << ((fileSizeOrDirInfoParameterLength - nbyte - 1) * 8);
             }
-            cJSON_AddItemToObject(root, "FileSizeCompressed", cJSON_CreateNumber(fileSizeCompressed));
+            cJSON_AddItemToObject(root, "FileSizeCompressed", cJSON_CreateNumber(file_size_compressed));
         }
     }
     else {
-        modeOfOperation = stream_byte_read(&sp);
-        cJSON_AddItemToObject(root, "ModeOfOperation", cJSON_CreateString(ydesc_uds_rft_mode_types(modeOfOperation)));
+        mode_of_operation = stream_byte_read(&sp);
+        cJSON_AddItemToObject(root, "ModeOfOperation", cJSON_CreateString(ydesc_uds_rft_mode_types(mode_of_operation)));
 
-        yuint16 filePathAndNameLength = stream_2byte_read(&sp);
-        cJSON_AddItemToObject(root, "FilePathAndNameLength", cJSON_CreateNumber(filePathAndNameLength));
+        yuint16 file_path_and_name_length = stream_2byte_read(&sp);
+        cJSON_AddItemToObject(root, "FilePathAndNameLength", cJSON_CreateNumber(file_path_and_name_length));
 
-        stream_nbyte_read(&sp, val, filePathAndNameLength);    
+        stream_nbyte_read(&sp, val, file_path_and_name_length);    
         cJSON_AddItemToObject(root, "FilePathAndName", cJSON_CreateString(val));
         
-        yuint8 dataFormatIdentifier = stream_byte_read(&sp);   
+        yuint8 data_format_identifier = stream_byte_read(&sp);   
         memset(val, 0, sizeof(val));
-        snprintf(val, sizeof(val), "0x%02X", dataFormatIdentifier);      
+        snprintf(val, sizeof(val), "0x%02X", data_format_identifier);      
         cJSON_AddItemToObject(root, "DataFormatIdentifier", cJSON_CreateString(val));
         
-        yuint8 fileSizeParameterLength = stream_byte_read(&sp); 
+        yuint8 file_size_parameter_length = stream_byte_read(&sp); 
         memset(val, 0, sizeof(val));
-        snprintf(val, sizeof(val), "0x%02X", fileSizeParameterLength);    
+        snprintf(val, sizeof(val), "0x%02X", file_size_parameter_length);    
         cJSON_AddItemToObject(root, "FileSizeParameterLength", cJSON_CreateString(val));
 
-        for (nbyte = 0; nbyte < fileSizeParameterLength; nbyte++) {
+        for (nbyte = 0; nbyte < file_size_parameter_length; nbyte++) {
             yuint8 byte = stream_byte_read(&sp);
-            fileSizeUnCompressed |=  byte << ((fileSizeParameterLength - nbyte - 1) * 8);
+            file_size_uncompressed |=  byte << ((file_size_parameter_length - nbyte - 1) * 8);
         } 
-        cJSON_AddItemToObject(root, "FileSizeUnCompressed", cJSON_CreateNumber(fileSizeUnCompressed));
+        cJSON_AddItemToObject(root, "FileSizeUnCompressed", cJSON_CreateNumber(file_size_uncompressed));
 
-        for (nbyte = 0; nbyte < fileSizeParameterLength; nbyte++) {
+        for (nbyte = 0; nbyte < file_size_parameter_length; nbyte++) {
             yuint8 byte = stream_byte_read(&sp);
-            fileSizeCompressed |=  byte << ((fileSizeParameterLength - nbyte - 1) * 8);
+            file_size_compressed |=  byte << ((file_size_parameter_length - nbyte - 1) * 8);
         } 
-        cJSON_AddItemToObject(root, "FileSizeCompressed", cJSON_CreateNumber(fileSizeCompressed));
+        cJSON_AddItemToObject(root, "FileSizeCompressed", cJSON_CreateNumber(file_size_compressed));
     }
 }
 

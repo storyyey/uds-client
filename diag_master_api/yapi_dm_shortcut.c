@@ -428,7 +428,7 @@ int yapi_request_download_file(YAPI_DM yapi, yuint16 udscid, const char *file, u
     cache_block_info *cache_blocks[128] = {0};
     cache_block_info acache_block = {0};
     char *files[128] = {0};
-    YByteArray *arrbytes = yapi_byte_array_new();    
+    ybyte_array *arrbytes = yapi_byte_array_new();    
     yuint8 expect_respon[32] = {0};
     int block_index = 0;
     int file_format = yapi_file_format(file);

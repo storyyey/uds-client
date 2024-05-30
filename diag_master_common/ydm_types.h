@@ -9,7 +9,7 @@ typedef signed int yint32;
 typedef signed short yint16;
 typedef signed char yint8;
 
-typedef unsigned char BOOLEAN;
+typedef unsigned char boolean;
 #ifdef _WIN32
 #ifndef F_OK
 #define F_OK (0)

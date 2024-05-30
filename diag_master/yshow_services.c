@@ -197,7 +197,7 @@ void show_row_service(yint32 index, service_item *item)
     tl = snprintf(tbuf, sizeof(tbuf), "%s", service_item_status_str(item->status));    
     memcpy(sg_line_buf + C_SERVICE_STATUS_OFFSET + 1, tbuf, MIN(C_SERVICE_STATUS_SIZE - 1, tl)); 
     
-    BOOLEAN isbr = false;
+    boolean isbr = false;
     char request_tbuf[1024] = {0};
     yint32 request_tl = 0, request_p = 0; 
     char *expect_resp_tbuf = NULL;
@@ -218,8 +218,8 @@ void show_row_service(yint32 index, service_item *item)
         
             /* 请求数据列 */
             if (item->request_byte) {
-                data = YByteArrayConstData(item->request_byte);
-                count = YByteArrayCount(item->request_byte);
+                data = y_byte_array_const_data(item->request_byte);
+                count = y_byte_array_count(item->request_byte);
                 for (ii = 0; ii < count; ii++) {
                     if (sizeof(request_tbuf) - request_tl > 3) {
                         request_tbuf[request_tl++] = HEX_TO_CHAR(data[ii] >> 4 & 0x0f);
@@ -230,7 +230,7 @@ void show_row_service(yint32 index, service_item *item)
             }
             /* 预期响应消息列 */
             if (item->expect_byte) {
-                expect_resp_tbuf = YByteArrayConstData(item->expect_byte);
+                expect_resp_tbuf = y_byte_array_const_data(item->expect_byte);
             }
             if (expect_resp_tbuf == NULL) {
                 expect_resp_tbuf = "/";
@@ -252,8 +252,8 @@ void show_row_service(yint32 index, service_item *item)
             }
             /* 响应消息列 */
             if (item->response_byte) {
-                data = YByteArrayConstData(item->response_byte);
-                count = YByteArrayCount(item->response_byte);
+                data = y_byte_array_const_data(item->response_byte);
+                count = y_byte_array_count(item->response_byte);
                 for (ii = 0; ii < count; ii++) {
                     if (sizeof(response_tbuf) - response_tl > 3) {
                         response_tbuf[response_tl++] = HEX_TO_CHAR(data[ii] >> 4 & 0x0f);

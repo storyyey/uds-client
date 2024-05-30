@@ -359,62 +359,62 @@ int ydm_service_config_encode(yuint8 *buff, yuint32 size, service_config *config
     if (strlen(config->desc) > 0) {
         cJSON_AddItemToObject(root, C_KEY_SI_DESC, cJSON_CreateString(config->desc));
     }
-    if (config->variableByte && YByteArrayCount(config->variableByte) > 0) {
+    if (config->variableByte && y_byte_array_count(config->variableByte) > 0) {
         cJSON *arrobj = cJSON_CreateArray();
         if (arrobj) {
-            for (ii = 0; ii < YByteArrayCount(config->variableByte); ii++) {
-                cJSON_AddItemToArray(arrobj, cJSON_CreateNumber(YByteArrayConstData(config->variableByte)[ii]));
+            for (ii = 0; ii < y_byte_array_count(config->variableByte); ii++) {
+                cJSON_AddItemToArray(arrobj, cJSON_CreateNumber(y_byte_array_const_data(config->variableByte)[ii]));
             }
             cJSON_AddItemToObject(root, C_KEY_SI_VARIABLE_BYTE, arrobj);
         }
     }
 #if 0    
-    if (config->expectResponByte && YByteArrayCount(config->expectResponByte) > 0) {
+    if (config->expectResponByte && y_byte_array_count(config->expectResponByte) > 0) {
         cJSON *arrobj = cJSON_CreateArray();        
         if (arrobj) {
-            for (ii = 0; ii < YByteArrayCount(config->expectResponByte); ii++) {
-                cJSON_AddItemToArray(arrobj, cJSON_CreateNumber(YByteArrayConstData(config->expectResponByte)[ii]));
+            for (ii = 0; ii < y_byte_array_count(config->expectResponByte); ii++) {
+                cJSON_AddItemToArray(arrobj, cJSON_CreateNumber(y_byte_array_const_data(config->expectResponByte)[ii]));
             }
             cJSON_AddItemToObject(root, C_KEY_SI_EXPECT_RESPONSE_BYTE, arrobj);
         }
     }
-    if (config->finishByte && YByteArrayCount(config->finishByte) > 0) {
+    if (config->finishByte && y_byte_array_count(config->finishByte) > 0) {
         cJSON *arrobj = cJSON_CreateArray();
         if (arrobj) {
-            for (ii = 0; ii < YByteArrayCount(config->finishByte); ii++) {
-                cJSON_AddItemToArray(arrobj, cJSON_CreateNumber(YByteArrayConstData(config->finishByte)[ii]));
+            for (ii = 0; ii < y_byte_array_count(config->finishByte); ii++) {
+                cJSON_AddItemToArray(arrobj, cJSON_CreateNumber(y_byte_array_const_data(config->finishByte)[ii]));
             }
             cJSON_AddItemToObject(root, C_KEY_SI_FINISH_RESPONSE_BYTE, arrobj);
         }
     }
 #endif    
-    if (config->expectResponByte && strlen(YByteArrayConstData(config->expectResponByte))) {
-        cJSON_AddItemToObject(root, C_KEY_SI_EXPECT_RESPONSE_BYTE, cJSON_CreateString(YByteArrayConstData(config->expectResponByte)));
+    if (config->expectResponByte && strlen(y_byte_array_const_data(config->expectResponByte))) {
+        cJSON_AddItemToObject(root, C_KEY_SI_EXPECT_RESPONSE_BYTE, cJSON_CreateString(y_byte_array_const_data(config->expectResponByte)));
     }
-    if (config->finishByte && strlen(YByteArrayConstData(config->finishByte))) {
-        cJSON_AddItemToObject(root, C_KEY_SI_FINISH_RESPONSE_BYTE, cJSON_CreateString(YByteArrayConstData(config->finishByte)));
+    if (config->finishByte && strlen(y_byte_array_const_data(config->finishByte))) {
+        cJSON_AddItemToObject(root, C_KEY_SI_FINISH_RESPONSE_BYTE, cJSON_CreateString(y_byte_array_const_data(config->finishByte)));
     }
     if (config->sid == 0x34) {
         cJSON *rdobj = cJSON_CreateObject();
         if (rdobj) {
             cJSON_AddItemToObject(root, C_KEY_SI_ID_34_RD, rdobj);
-            cJSON_AddItemToObject(rdobj, C_KEY_SI_ID_34_DFI, cJSON_CreateNumber(config->service_34_rd.dataFormatIdentifier));
-            cJSON_AddItemToObject(rdobj, C_KEY_SI_ID_34_AALFI, cJSON_CreateNumber(config->service_34_rd.addressAndLengthFormatIdentifier));
-            cJSON_AddItemToObject(rdobj, C_KEY_SI_ID_34_MA, cJSON_CreateNumber(config->service_34_rd.memoryAddress));
-            cJSON_AddItemToObject(rdobj, C_KEY_SI_ID_34_MS, cJSON_CreateNumber(config->service_34_rd.memorySize));             
+            cJSON_AddItemToObject(rdobj, C_KEY_SI_ID_34_DFI, cJSON_CreateNumber(config->service_34_rd.data_format_identifier));
+            cJSON_AddItemToObject(rdobj, C_KEY_SI_ID_34_AALFI, cJSON_CreateNumber(config->service_34_rd.address_and_length_format_identifier));
+            cJSON_AddItemToObject(rdobj, C_KEY_SI_ID_34_MA, cJSON_CreateNumber(config->service_34_rd.memory_address));
+            cJSON_AddItemToObject(rdobj, C_KEY_SI_ID_34_MS, cJSON_CreateNumber(config->service_34_rd.memory_size));             
         }
     }
     if (config->sid == 0x38) {
         cJSON *rftobj = cJSON_CreateObject();
         if (rftobj) {
             cJSON_AddItemToObject(root, C_KEY_SI_ID_38_FRT, rftobj);
-            cJSON_AddItemToObject(rftobj, C_KEY_SI_ID_38_MOO, cJSON_CreateNumber(config->service_38_rft.modeOfOperation));
-            cJSON_AddItemToObject(rftobj, C_KEY_SI_ID_38_FPANL, cJSON_CreateNumber(config->service_38_rft.filePathAndNameLength));
-            cJSON_AddItemToObject(rftobj, C_KEY_SI_ID_38_FPAN, cJSON_CreateString(config->service_38_rft.filePathAndName));
-            cJSON_AddItemToObject(rftobj, C_KEY_SI_ID_38_DFI, cJSON_CreateNumber(config->service_38_rft.dataFormatIdentifier));
-            cJSON_AddItemToObject(rftobj, C_KEY_SI_ID_38_FSPL, cJSON_CreateNumber(config->service_38_rft.fileSizeParameterLength));
-            cJSON_AddItemToObject(rftobj, C_KEY_SI_ID_38_FSUC, cJSON_CreateNumber(config->service_38_rft.fileSizeUnCompressed));
-            cJSON_AddItemToObject(rftobj, C_KEY_SI_ID_38_FSC, cJSON_CreateNumber(config->service_38_rft.fileSizeCompressed)); 
+            cJSON_AddItemToObject(rftobj, C_KEY_SI_ID_38_MOO, cJSON_CreateNumber(config->service_38_rft.mode_of_operation));
+            cJSON_AddItemToObject(rftobj, C_KEY_SI_ID_38_FPANL, cJSON_CreateNumber(config->service_38_rft.file_path_and_name_length));
+            cJSON_AddItemToObject(rftobj, C_KEY_SI_ID_38_FPAN, cJSON_CreateString(config->service_38_rft.file_path_and_name));
+            cJSON_AddItemToObject(rftobj, C_KEY_SI_ID_38_DFI, cJSON_CreateNumber(config->service_38_rft.data_format_identifier));
+            cJSON_AddItemToObject(rftobj, C_KEY_SI_ID_38_FSPL, cJSON_CreateNumber(config->service_38_rft.file_size_parameter_length));
+            cJSON_AddItemToObject(rftobj, C_KEY_SI_ID_38_FSUC, cJSON_CreateNumber(config->service_38_rft.file_size_uncompressed));
+            cJSON_AddItemToObject(rftobj, C_KEY_SI_ID_38_FSC, cJSON_CreateNumber(config->service_38_rft.file_size_compressed)); 
         }
     }
     if (config->sid == 0x36) {
@@ -424,8 +424,8 @@ int ydm_service_config_encode(yuint8 *buff, yuint32 size, service_config *config
             if (strlen(config->local_path) > 0) {
                 cJSON_AddItemToObject(rftobj, C_KEY_SI_LOCAL_FILE_PATH, cJSON_CreateString(config->local_path));
             }
-            if (config->maxNumberOfBlockLength > 0) {        
-                cJSON_AddItemToObject(rftobj, C_KEY_SI_MAX_NUMBER_OF_BLOCK_LEN, cJSON_CreateNumber(config->maxNumberOfBlockLength));
+            if (config->max_number_of_block_length > 0) {        
+                cJSON_AddItemToObject(rftobj, C_KEY_SI_MAX_NUMBER_OF_BLOCK_LEN, cJSON_CreateNumber(config->max_number_of_block_length));
             }
         }
     }
@@ -517,7 +517,7 @@ int ydm_service_config_decode(yuint8 *buff, yuint32 size, service_config *config
         for (index = 0; index < arrcount; index++) {
             cJSON *arrayItem = cJSON_GetArrayItem(vobj, index);
             if (arrayItem && config->variableByte) {
-                YByteArrayAppendChar(config->variableByte, cJSON_GetNumberValue(arrayItem));                
+                y_byte_array_append_char(config->variableByte, cJSON_GetNumberValue(arrayItem));                
             }            
         }         
     }
@@ -529,7 +529,7 @@ int ydm_service_config_decode(yuint8 *buff, yuint32 size, service_config *config
         for (index = 0; index < arrcount; index++) {
             cJSON *arrayItem = cJSON_GetArrayItem(vobj, index);
             if (arrayItem && config->expectResponByte) {
-                YByteArrayAppendChar(config->expectResponByte, cJSON_GetNumberValue(arrayItem));                
+                y_byte_array_append_char(config->expectResponByte, cJSON_GetNumberValue(arrayItem));                
             }            
         }         
     }
@@ -540,7 +540,7 @@ int ydm_service_config_decode(yuint8 *buff, yuint32 size, service_config *config
         for (index = 0; index < arrcount; index++) {
             cJSON *arrayItem = cJSON_GetArrayItem(vobj, index);
             if (arrayItem && config->finishByte) {
-                YByteArrayAppendChar(config->finishByte, cJSON_GetNumberValue(arrayItem));
+                y_byte_array_append_char(config->finishByte, cJSON_GetNumberValue(arrayItem));
             }
         }         
     }
@@ -549,33 +549,33 @@ int ydm_service_config_decode(yuint8 *buff, yuint32 size, service_config *config
     if (vobj) {
         char *str = cJSON_GetStringValue(vobj);
         if (str && config->expectResponByte) {
-            YByteArrayAppendNChar(config->expectResponByte, str, strlen(str));
+            y_byte_array_append_nchar(config->expectResponByte, str, strlen(str));
         }
     }
     vobj = cJSON_GetObjectItem(root, C_KEY_SI_FINISH_RESPONSE_BYTE);
     if (vobj) {
         char *str = cJSON_GetStringValue(vobj);
         if (str && config->finishByte) {
-            YByteArrayAppendNChar(config->finishByte, str, strlen(str));       
+            y_byte_array_append_nchar(config->finishByte, str, strlen(str));       
         }
     }
     vobj = cJSON_GetObjectItem(root, C_KEY_SI_ID_34_RD);
     if (vobj) {
         cJSON *tobj = cJSON_GetObjectItem(vobj, C_KEY_SI_ID_34_DFI);
         if (tobj) {
-            config->service_34_rd.dataFormatIdentifier = cJSON_GetNumberValue(tobj);        
+            config->service_34_rd.data_format_identifier = cJSON_GetNumberValue(tobj);        
         }
         tobj = cJSON_GetObjectItem(vobj, C_KEY_SI_ID_34_AALFI);
         if (tobj) {
-            config->service_34_rd.addressAndLengthFormatIdentifier = cJSON_GetNumberValue(tobj);        
+            config->service_34_rd.address_and_length_format_identifier = cJSON_GetNumberValue(tobj);        
         }
         tobj = cJSON_GetObjectItem(vobj, C_KEY_SI_ID_34_MA);
         if (tobj) {
-            config->service_34_rd.memoryAddress = cJSON_GetNumberValue(tobj);        
+            config->service_34_rd.memory_address = cJSON_GetNumberValue(tobj);        
         }        
         tobj = cJSON_GetObjectItem(vobj, C_KEY_SI_ID_34_MS);
         if (tobj) {
-            config->service_34_rd.memorySize = cJSON_GetNumberValue(tobj);        
+            config->service_34_rd.memory_size = cJSON_GetNumberValue(tobj);        
         }
     }
 
@@ -583,32 +583,32 @@ int ydm_service_config_decode(yuint8 *buff, yuint32 size, service_config *config
     if (vobj) {
         cJSON *tobj = cJSON_GetObjectItem(vobj, C_KEY_SI_ID_38_MOO);
         if (tobj) {
-            config->service_38_rft.modeOfOperation = cJSON_GetNumberValue(tobj);        
+            config->service_38_rft.mode_of_operation = cJSON_GetNumberValue(tobj);        
         }
         tobj = cJSON_GetObjectItem(vobj, C_KEY_SI_ID_38_FPANL);
         if (tobj) {
-            config->service_38_rft.filePathAndNameLength = cJSON_GetNumberValue(tobj);        
+            config->service_38_rft.file_path_and_name_length = cJSON_GetNumberValue(tobj);        
         }
         tobj = cJSON_GetObjectItem(vobj, C_KEY_SI_ID_38_FPAN);
         if (tobj) {
-            snprintf(config->service_38_rft.filePathAndName, \
-                sizeof(config->service_38_rft.filePathAndName), "%s", cJSON_GetStringValue(tobj));       
+            snprintf(config->service_38_rft.file_path_and_name, \
+                sizeof(config->service_38_rft.file_path_and_name), "%s", cJSON_GetStringValue(tobj));       
         }
         tobj = cJSON_GetObjectItem(vobj, C_KEY_SI_ID_38_DFI);
         if (tobj) {
-            config->service_38_rft.dataFormatIdentifier = cJSON_GetNumberValue(tobj);        
+            config->service_38_rft.data_format_identifier = cJSON_GetNumberValue(tobj);        
         }
         tobj = cJSON_GetObjectItem(vobj, C_KEY_SI_ID_38_FSPL);
         if (tobj) {
-            config->service_38_rft.fileSizeParameterLength = cJSON_GetNumberValue(tobj);        
+            config->service_38_rft.file_size_parameter_length = cJSON_GetNumberValue(tobj);        
         }
         tobj = cJSON_GetObjectItem(vobj, C_KEY_SI_ID_38_FSUC);
         if (tobj) {
-            config->service_38_rft.fileSizeUnCompressed = cJSON_GetNumberValue(tobj);        
+            config->service_38_rft.file_size_uncompressed = cJSON_GetNumberValue(tobj);        
         }
         tobj = cJSON_GetObjectItem(vobj, C_KEY_SI_ID_38_FSC);
         if (tobj) {
-            config->service_38_rft.fileSizeCompressed = cJSON_GetNumberValue(tobj);        
+            config->service_38_rft.file_size_compressed = cJSON_GetNumberValue(tobj);        
         }
     }
     vobj = cJSON_GetObjectItem(root, C_KEY_SI_ID_36_TD);
@@ -620,7 +620,7 @@ int ydm_service_config_decode(yuint8 *buff, yuint32 size, service_config *config
         }        
         tobj = cJSON_GetObjectItem(vobj, C_KEY_SI_MAX_NUMBER_OF_BLOCK_LEN);
         if (tobj) {
-            config->maxNumberOfBlockLength = cJSON_GetNumberValue(tobj);        
+            config->max_number_of_block_length = cJSON_GetNumberValue(tobj);        
         }
     }
     cJSON_Delete(root);
@@ -640,11 +640,11 @@ int ydm_general_config_encode(yuint8 *buff, yuint32 size, udsc_runtime_config *c
     if (root == 0) return -1;
 
     cJSON_AddItemToObject(root, C_KEY_GC_IS_FAILABORT, cJSON_CreateBool(config->isFailAbort));
-    cJSON_AddItemToObject(root, C_KEY_GC_TP_ENABLE, cJSON_CreateBool(config->tpEnable));
-    cJSON_AddItemToObject(root, C_KEY_GC_TP_IS_REFRESH, cJSON_CreateBool(config->isTpRefresh));
-    cJSON_AddItemToObject(root, C_KEY_GC_TP_INTERVAL, cJSON_CreateNumber(config->tpInterval));
-    cJSON_AddItemToObject(root, C_KEY_GC_TP_TA, cJSON_CreateNumber(config->tpta));
-    cJSON_AddItemToObject(root, C_KEY_GC_TP_SA, cJSON_CreateNumber(config->tpsa));    
+    cJSON_AddItemToObject(root, C_KEY_GC_TP_ENABLE, cJSON_CreateBool(config->tester_present_enable));
+    cJSON_AddItemToObject(root, C_KEY_GC_TP_IS_REFRESH, cJSON_CreateBool(config->is_tester_present_refresh));
+    cJSON_AddItemToObject(root, C_KEY_GC_TP_INTERVAL, cJSON_CreateNumber(config->tester_present_interval));
+    cJSON_AddItemToObject(root, C_KEY_GC_TP_TA, cJSON_CreateNumber(config->tester_present_ta));
+    cJSON_AddItemToObject(root, C_KEY_GC_TP_SA, cJSON_CreateNumber(config->tester_present_sa));    
     cJSON_AddItemToObject(root, C_KEY_GC_TD_36_NOTIFY_INTERVAL, cJSON_CreateNumber(config->td_36_notify_interval));    
     cJSON_AddItemToObject(root, C_KEY_RUN_STATIS_ENABLE, cJSON_CreateBool(config->runtime_statis_enable));
     cJSON_AddItemToObject(root, C_KEY_UDS_MSG_PARSE, cJSON_CreateBool(config->uds_msg_parse_enable));
@@ -680,23 +680,23 @@ int ydm_general_config_decode(yuint8 *buff, yuint32 size, udsc_runtime_config *c
     }    
     vobj = cJSON_GetObjectItem(root, C_KEY_GC_TP_ENABLE);
     if (vobj) {
-        config->tpEnable = cJSON_IsFalse(vobj) ? 0 : 1;        
+        config->tester_present_enable = cJSON_IsFalse(vobj) ? 0 : 1;        
     }  
     vobj = cJSON_GetObjectItem(root, C_KEY_GC_TP_IS_REFRESH);
     if (vobj) {
-        config->isTpRefresh = cJSON_IsFalse(vobj) ? 0 : 1;        
+        config->is_tester_present_refresh = cJSON_IsFalse(vobj) ? 0 : 1;        
     }  
     vobj = cJSON_GetObjectItem(root, C_KEY_GC_TP_INTERVAL);
     if (vobj) {
-        config->tpInterval = cJSON_GetNumberValue(vobj);        
+        config->tester_present_interval = cJSON_GetNumberValue(vobj);        
     }
     vobj = cJSON_GetObjectItem(root, C_KEY_GC_TP_TA);
     if (vobj) {
-        config->tpta = cJSON_GetNumberValue(vobj);        
+        config->tester_present_ta = cJSON_GetNumberValue(vobj);        
     }
     vobj = cJSON_GetObjectItem(root, C_KEY_GC_TP_SA);
     if (vobj) {
-        config->tpsa = cJSON_GetNumberValue(vobj);        
+        config->tester_present_sa = cJSON_GetNumberValue(vobj);        
     }
     vobj = cJSON_GetObjectItem(root, C_KEY_GC_TD_36_NOTIFY_INTERVAL);
     if (vobj) {
@@ -1292,9 +1292,9 @@ char *ydm_ipc_event_str(yuint32 evtype)
              return "[event accept] <uds client destory>";
         /* ota_master_api 请求 ota_master 复位 */
         case DM_EVENT_DIAG_MASTER_RESET_EMIT:            
-             return "(event emit) <ota master reset>";
+             return "(event emit) <diag master reset>";
         case DM_EVENT_DIAG_MASTER_RESET_ACCEPT:
-             return "[event accept] <ota master reset>";
+             return "[event accept] <diag master reset>";
         /* ota_master_api 请求 ota_master 配置通用项 */
         case DM_EVENT_UDS_CLIENT_GENERAL_CFG_EMIT:            
              return "(event emit) <uds client general config>";
@@ -1314,9 +1314,9 @@ char *ydm_ipc_event_str(yuint32 evtype)
         case DM_EVENT_UDS_SERVICE_27_SA_KEY_ACCEPT:
              return "[event accept] <service request SA key>";
         case DM_EVENT_CONNECT_DIAG_MASTER_EMIT:            
-             return "(event emit) <connect ota master>";
+             return "(event emit) <connect diag master>";
         case DM_EVENT_CONNECT_DIAG_MASTER_ACCEPT:
-             return "[event accept] <connect ota master>";
+             return "[event accept] <connect diag master>";
         case DM_EVENT_OMAPI_KEEPALIVE_EMIT:
              return "(event emit) <keepalive>";
         case DM_EVENT_OMAPI_KEEPALIVE_ACCEPT:
@@ -1334,9 +1334,9 @@ char *ydm_ipc_event_str(yuint32 evtype)
         case DM_EVENT_UDS_CLIENT_ACTIVE_CHECK_ACCEPT:
              return "[event accept] <uds client check active>";
         case DM_EVENT_OMAPI_CHECK_VALID_EMIT:
-             return "(event emit) <ota master api check valid>";
+             return "(event emit) <diag master api check valid>";
         case DM_EVENT_OMAPI_CHECK_VALID_ACCEPT:
-             return "[event accept] <ota master api check valid>";
+             return "[event accept] <diag master api check valid>";
         case DM_EVENT_TERMINAL_CONTROL_SERVICE_CREATE_EMIT:
              return "(event emit) <terminal control service create>";
         case DM_EVENT_TERMINAL_CONTROL_SERVICE_CREATE_ACCEPT:
@@ -1378,11 +1378,11 @@ char *ydm_event_rcode_str(int rcode)
         case DM_ERR_UDS_RESPONSE_UNEXPECT:
             return "UDS service response unexpect";
         case DM_ERR_DIAG_MASTER_MAX:
-            return "ota master out max";
+            return "diag master out max";
         case DM_ERR_OMAPI_UNKNOWN:
-            return "ota master api unknown";
+            return "diag master api unknown";
         case DM_ERR_DIAG_MASTER_CREATE:        
-            return "ota master create failed";
+            return "diag master create failed";
         case DM_ERR_DOIPC_CREATE_FAILED:
             return "doip client create failed";
         case DM_ERR_UDSC_RUNDATA_STATIS:
@@ -1396,9 +1396,9 @@ char *ydm_event_rcode_str(int rcode)
 
 #define YBYTE_ARRAY_RESERVED_SIZE (32)
 
-YByteArray *YByteArrayNew()
+ybyte_array *y_byte_array_new()
 {
-    YByteArray *arr = calloc(sizeof(YByteArray), 1);
+    ybyte_array *arr = calloc(sizeof(ybyte_array), 1);
     if (arr) {
         arr->size = 1;
         arr->data = calloc(arr->size, 1);
@@ -1410,7 +1410,7 @@ YByteArray *YByteArrayNew()
     return arr;
 }
 
-void YByteArrayDelete(YByteArray *arr)
+void y_byte_array_delete(ybyte_array *arr)
 {
     if (arr) {
         if (arr->data) { 
@@ -1420,23 +1420,23 @@ void YByteArrayDelete(YByteArray *arr)
     }
 }
 
-void YByteArrayClear(YByteArray *arr)
+void y_byte_array_clear(ybyte_array *arr)
 {
     arr->dlen = 0;
     memset(arr->data, 0, arr->size);
 }
 
-const yuint8 *YByteArrayConstData(YByteArray *arr)
+const yuint8 *y_byte_array_const_data(ybyte_array *arr)
 {
     return arr->data;
 }
 
-int YByteArrayCount(YByteArray *arr)
+int y_byte_array_count(ybyte_array *arr)
 {
     return arr->dlen;
 }
 
-void YByteArrayAppendChar(YByteArray *dest, yuint8 c)
+void y_byte_array_append_char(ybyte_array *dest, yuint8 c)
 {
     if (!(dest->dlen + 1 < dest->size)) {
         dest->size = YBYTE_ARRAY_RESERVED_SIZE + dest->dlen + 1;
@@ -1455,7 +1455,7 @@ void YByteArrayAppendChar(YByteArray *dest, yuint8 c)
     }
 }
 
-void YByteArrayAppendArray(YByteArray *dest, YByteArray *src)
+void y_byte_array_append_array(ybyte_array *dest, ybyte_array *src)
 {
     if (!(dest->dlen + src->dlen < dest->size)) {
         dest->size = YBYTE_ARRAY_RESERVED_SIZE + dest->dlen + src->dlen;
@@ -1474,7 +1474,7 @@ void YByteArrayAppendArray(YByteArray *dest, YByteArray *src)
     }
 }
 
-void YByteArrayAppendNChar(YByteArray *dest, yuint8 *c, yuint32 count)
+void y_byte_array_append_nchar(ybyte_array *dest, yuint8 *c, yuint32 count)
 {
     if (!(dest->dlen + count < dest->size)) {
         dest->size = YBYTE_ARRAY_RESERVED_SIZE + dest->dlen + count;
@@ -1493,13 +1493,13 @@ void YByteArrayAppendNChar(YByteArray *dest, yuint8 *c, yuint32 count)
     }    
 }
 
-int YByteArrayContainsNChar(YByteArray *dest, yuint8 *c, yuint32 count)
+int y_byte_array_contains_nchar(ybyte_array *dest, yuint8 *c, yuint32 count)
 {
 
 
 }
 
-int YByteArrayEqual(YByteArray *arr1, YByteArray *arr2)
+int y_byte_array_equal(ybyte_array *arr1, ybyte_array *arr2)
 {
     if (arr1->dlen == arr2->dlen && \
         memcmp(arr1->data, arr2->data, arr2->dlen) == 0) {
@@ -1509,7 +1509,7 @@ int YByteArrayEqual(YByteArray *arr1, YByteArray *arr2)
     return 0;
 }
 
-int YByteArrayCharEqual(YByteArray *arr1, yuint8 *c, yuint32 count)
+int y_byte_array_char_equal(ybyte_array *arr1, yuint8 *c, yuint32 count)
 {
     if (arr1->dlen == count && \
         memcmp(arr1->data, c, count) == 0) {
@@ -1519,7 +1519,7 @@ int YByteArrayCharEqual(YByteArray *arr1, yuint8 *c, yuint32 count)
     return 0;
 }
 
-char YByteArrayAt(YByteArray *arr, int pos)
+char y_byte_array_at(ybyte_array *arr, int pos)
 {
     return 0;
 }

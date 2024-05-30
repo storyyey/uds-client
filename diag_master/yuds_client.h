@@ -57,30 +57,30 @@ typedef enum service_response_stat {
 
 typedef struct service_36_td {
 #define MAX_NUMBER_OF_BLOCK_LENGTH (10000) /* 设备支持的最大传输数据块长度 */
-    yuint32 maxNumberOfBlockLength; /* 最大传输块长度，由外部设置的 */    
+    yuint32 max_number_of_block_length; /* 最大传输块长度，由外部设置的 */    
     char *local_path;
     yuint8 rt_cnt; /* 重传次数计次 */
-    BOOLEAN is_retrans; /* 当前是否是重传 */
+    boolean is_retrans; /* 当前是否是重传 */
 } service_36_td;
 
 typedef struct service_34_rd {
-    yuint8 dataFormatIdentifier;
-    yuint8 addressAndLengthFormatIdentifier;
-    yuint32 memoryAddress;
-    yuint32 memorySize;
+    yuint8 data_format_identifier;
+    yuint8 address_and_length_format_identifier;
+    yuint32 memory_address;
+    yuint32 memory_size;
 } service_34_rd;
 
 typedef struct service_38_rft {
-    yuint8 modeOfOperation;
-    yuint16 filePathAndNameLength;
-    char *filePathAndName;
-    yuint8 dataFormatIdentifier;
-    yuint8 fileSizeParameterLength;
-    yuint32 fileSizeUnCompressed;
-    yuint32 fileSizeCompressed;
+    yuint8 mode_of_operation;
+    yuint16 file_path_and_name_length;
+    char *file_path_and_name;
+    yuint8 data_format_identifier;
+    yuint8 file_size_parameter_length;
+    yuint32 file_size_uncompressed;
+    yuint32 file_size_compressed;
 } service_38_rft;
 
-typedef int (*YKey)(
+typedef int (*ykey)(
     const unsigned char*    iSeedArray,        // seed数组
     unsigned short          iSeedArraySize,    // seed数组大小
     unsigned int            iSecurityLevel,    // 安全级别 1,3,5...
@@ -90,10 +90,10 @@ typedef int (*YKey)(
 );
 
 typedef struct service_27_ac {
-    YKey key_callback;
+    ykey key_callback;
 } service_27_ac;
 
-typedef void (*service_variable_byte_callback)(void *item, YByteArray *variable_byte, void *arg);
+typedef void (*service_variable_byte_callback)(void *item, ybyte_array *variable_byte, void *arg);
 
 typedef void (*service_response_callback)(void *item, const yuint8 *data, yuint32 len, void *arg);
 
@@ -108,7 +108,7 @@ enum service_item_status {
 /* 这个结构体内的变量值都是在添加诊断服务项时初始化赋值的，后续执行过程中不修改其中变量值 */
 typedef struct service_item {
     enum service_item_status status;
-    BOOLEAN isenable;
+    boolean isenable;
     yuint8 sid; /* 诊断服务ID */
     yuint8 sub; /* 诊断服务子功能，option */
     yuint16 did; /* 数据标识符，option */
@@ -119,12 +119,12 @@ typedef struct service_item {
 #define UDS_SERVICE_TIMEOUT_TYPICAL_VAL (50) /* unit ms */
 #define UDS_SERVICE_TIMEOUT_MAX (20000) /* unit ms */
     yint32 timeout; /* 应答等待超时时间 unit ms */
-    BOOLEAN issuppress; /* 是否是抑制响应 */
+    boolean issuppress; /* 是否是抑制响应 */
     yuint32 tatype; /* 目的地址类型 */
     yuint32 ta; /* 诊断目的地址 */
     yuint32 sa; /* 诊断源地址 */
-    YByteArray *request_byte; /* 请求数据 */
-    YByteArray *variable_byte; /* 非固定格式的数据，比如31 2e服务后面不固定的数据 */
+    ybyte_array *request_byte; /* 请求数据 */
+    ybyte_array *variable_byte; /* 非固定格式的数据，比如31 2e服务后面不固定的数据 */
     service_variable_byte_callback vb_callback; /* 在构建请求数据时候调用 */
     void *vb_callback_arg;
     service_response_callback response_callback; /* 接收到应答的时候调用 */
@@ -134,19 +134,19 @@ typedef struct service_item {
     service_38_rft *rft_38; /* 38服务配置,可选数据 */
     service_27_ac ac_27;
     
-    serviceResponseExpect response_rule; /* 预期响应规则 */ 
-    YByteArray *expect_byte; /* 预期响应字符 */
-    YByteArray *expect_bytes[64]; /* 支持多个预期响应字符 */
+    service_response_expect response_rule; /* 预期响应规则 */ 
+    ybyte_array *expect_byte; /* 预期响应字符 */
+    ybyte_array *expect_bytes[64]; /* 支持多个预期响应字符 */
 
-    serviceFinishCondition finish_rule; /* 结束规则 */
-    YByteArray *finish_byte; /* 结束响应字符 */    
-    YByteArray *finish_bytes[64]; /* 支持多个结束响应字符 */
+    service_finish_condition finish_rule; /* 结束规则 */
+    ybyte_array *finish_byte; /* 结束响应字符 */    
+    ybyte_array *finish_bytes[64]; /* 支持多个结束响应字符 */
     
     yuint32 finish_try_num; /* 结束条件检测次数 */
     yuint32 finish_num_max; /* 结束最大尝试次数，到了这个次数不论是否符合结束条件都会结束这个诊断项 */
     yuint32 finish_time_max; /* 结束最大等待时间，到了这个时间不论是否符合结束条件都会结束这个诊断项 */
 
-    YByteArray *response_byte; /* 记录一下响应数据 */
+    ybyte_array *response_byte; /* 记录一下响应数据 */
         
     yuint32 rr_callid; /* ota master api 端的请求结果回调函数ID，大于0才有效 */
     char *desc; /* 诊断服务项描述信息 */
@@ -172,19 +172,19 @@ typedef void (*security_access_keygen_callback)(void *arg/* 用户数据指针 */, yui
 typedef void (*service_36_transfer_progress_callback)(void *arg/* 用户数据指针 */, yuint16 id, yuint32 file_size, yuint32 total_byte, yuint32 elapsed_time);
 
 typedef struct uds_client {
-    BOOLEAN isidle; /* 是否被使用 */
+    boolean isidle; /* 是否被使用 */
     yuint16 id; /* uds客户端ID */
     char *udsc_name; /* uds客户端名 */
-    char om_name[8]; /* ota master名字 */
+    char dm_name[8]; /* diag master名字 */
     struct ev_loop *loop; /* 主事件循环结构体 */
     ev_timer request_watcher; /* 诊断任务请求处理定时器 */
     ev_timer response_watcher; /* 诊断任务应答超时定时器 */
     ev_timer testerPresent_watcher; /* 诊断仪在线请求定时器 */
     ev_timer td_36_progress_watcher; /* 传输进度通告定时器 */
-    BOOLEAN isFailAbort; /* 诊断项任务处理发生错误后时候中止执行服务表项任务 */
-    BOOLEAN response_meet_expect; /* 运行过程中标志位，应答符合预期要求 */
+    boolean isFailAbort; /* 诊断项任务处理发生错误后时候中止执行服务表项任务 */
+    boolean response_meet_expect; /* 运行过程中标志位，应答符合预期要求 */
     yint32 sindex; /* 当前进行处理的诊断服务项索引 service_items[sindex] */
-    BOOLEAN iskeep; /* 是否继续执行当前诊断服务项，默认不继续支持当前项，在运行过程中确定 */
+    boolean iskeep; /* 是否继续执行当前诊断服务项，默认不继续支持当前项，在运行过程中确定 */
     yuint32 service_cnt; /* 诊断服务数量 */
     yuint32 service_size; /* service_items 的大小 */
     service_item **service_items; /* 诊断服务处理列表 */
@@ -198,19 +198,19 @@ typedef struct uds_client {
     service_36_transfer_progress_callback service_36_transfer_progress_cb;    
     /* 用于诊断服务项之间共享数据 */
     struct common_variable {
-        yuint8 fileTransferCount; /* 36服务传输序列号 */
-        yuint32 fileTransferTotalSize; /* 36服务传输文件总字节数 */
-        yuint32 fileSize; /* 文件大小 */
+        yuint8 file_transfer_count; /* 36服务传输序列号 */
+        yuint32 file_transfer_total_size; /* 36服务传输文件总字节数 */
+        yuint32 file_size; /* 文件大小 */
         yuint8 *td_buff; /* 36服务传输buff */
         yuint8 *ff_cache_buff; /* 36服务读取文件使用的缓存大小 */
         void *filefd; /* 打开的文件描述符34 36 37 38 服务使用 */
-        yuint32 maxNumberOfBlockLength; /* 最大传输块长度，由34,38服务的响应得到，实际36传输时使用这个变量的长度值，会根据需求设置 */
-        YByteArray *seed_byte;
-        YByteArray *key_byte; /* 保存由seed的生成的key */
+        yuint32 max_number_of_block_length; /* 最大传输块长度，由34,38服务的响应得到，实际36传输时使用这个变量的长度值，会根据需求设置 */
+        ybyte_array *seed_byte;
+        ybyte_array *key_byte; /* 保存由seed的生成的key */
         yuint16 p2_server_max;
         yuint16 p2_e_server_max;
     } common_var;
-    BOOLEAN runtime_statis_enable; /* 使能数据统计 */
+    boolean runtime_statis_enable; /* 使能数据统计 */
     /* ------------一些需要记录的中间变量start-------------- */
     yuint32 run_start_time;
     yuint32 recv_pretime;
@@ -223,11 +223,11 @@ typedef struct uds_client {
     /* 运行时数据统计 */
     struct runtime_data_statis_s rt_data_statis;
     /* 诊断仪在线请求 */
-    BOOLEAN tpEnable; /* 使能诊断仪在线请求报文 */
-    BOOLEAN isTpRefresh; /* 是否被UDS报文刷新定时器 */
-    yuint32 tpInterval; /* 发送间隔 unit ms */
-    yuint32 tpta; /* 诊断目的地址 */
-    yuint32 tpsa; /* 诊断源地址 */ 
+    boolean tester_present_enable; /* 使能诊断仪在线请求报文 */
+    boolean is_tester_present_refresh; /* 是否被UDS报文刷新定时器 */
+    yuint32 tester_present_interval; /* 发送间隔 unit ms */
+    yuint32 tester_present_ta; /* 诊断目的地址 */
+    yuint32 tester_present_sa; /* 诊断源地址 */ 
     void *doipc_channel; /* doip传输通道 */
 
     yuint32 td_36_start_time; 
@@ -235,8 +235,8 @@ typedef struct uds_client {
  #define TD_36_PROGRESS_NOTIFY_INTERVAL_MAX (10000) /* ms */
     yuint32 td_36_progress_interval;
 
-    BOOLEAN uds_msg_parse_enable; /* UDS消息解析使能，开启后有些许性能损耗 */
-    BOOLEAN uds_asc_record_enable; /* UDS消息记录，开启后有些许性能损耗 */
+    boolean uds_msg_parse_enable; /* UDS消息解析使能，开启后有些许性能损耗 */
+    boolean uds_asc_record_enable; /* UDS消息记录，开启后有些许性能损耗 */
 } uds_client;
 
 /*
@@ -252,44 +252,44 @@ extern uds_client *yudsc_create();
     调用这个函数前，确保没有事件循环和没有诊断业务在执行
     销毁UDS 客户端，在有诊断任务执行或者事件循环没有停止的时候返回错误
 */
-extern BOOLEAN yudsc_destroy(uds_client *udsc);
+extern boolean yudsc_destroy(uds_client *udsc);
 
 /*
     事件循环，需要循环调用这个函数才能进行事件循环
     和 yudsc_thread_loop_start 二选一即可
 */
-extern BOOLEAN yudsc_event_loop_start(uds_client *udsc);
+extern boolean yudsc_event_loop_start(uds_client *udsc);
 
 /*
     在线程内进行事件循环，只用调用一次就行，需要关注线程资源互斥问题
     和 yudsc_event_loop_start 二选一即可
 */
-extern BOOLEAN yudsc_thread_loop_start(uds_client *udsc);
+extern boolean yudsc_thread_loop_start(uds_client *udsc);
 
 /*
     停止事件循环
 */
-extern BOOLEAN yudsc_loop_stop(uds_client *udsc);
+extern boolean yudsc_loop_stop(uds_client *udsc);
 
 /*
     是否有诊断任务在执行中
 */
-extern BOOLEAN yudsc_service_isactive(uds_client *udsc);
+extern boolean yudsc_service_isactive(uds_client *udsc);
 
 /*
     开始执行诊断任务
 */
-extern BOOLEAN yudsc_services_start(uds_client *udsc);
+extern boolean yudsc_services_start(uds_client *udsc);
 
 /*
     停止执行诊断任务
 */
-extern BOOLEAN yudsc_services_stop(uds_client *udsc);
+extern boolean yudsc_services_stop(uds_client *udsc);
 
 /*
     设置诊断项执行出错是否终止执行诊断任务
 */
-extern void yudsc_service_fail_abort(uds_client *udsc, BOOLEAN b);
+extern void yudsc_service_fail_abort(uds_client *udsc, boolean b);
 
 /*
     增加一个诊断服务项，已经加入到诊断服务执行表内
@@ -304,7 +304,7 @@ extern void yudsc_service_item_del(uds_client *udsc, service_item *item);
 /*
     根据结构体内的配置生成请求报文
 */
-extern BOOLEAN yudsc_service_request_build(service_item *sitem);
+extern boolean yudsc_service_request_build(service_item *sitem);
 
 /*
     设置诊断请求发送回调函数
@@ -324,7 +324,7 @@ extern void yudsc_service_response_finish(uds_client *udsc, service_response_sta
 
 extern service_item *yudsc_curr_service_item(uds_client *udsc);
 
-extern BOOLEAN yudsc_reset(uds_client *udsc); 
+extern boolean yudsc_reset(uds_client *udsc); 
 
 extern void yudsc_service_sid_set(service_item *sitem, yuint8 sid);
 
@@ -342,15 +342,15 @@ extern void yudsc_service_delay_set(service_item *sitem, yint32 delay);
 
 extern void yudsc_service_timeout_set(service_item *sitem, yint32 timeout);
 
-extern void yudsc_service_suppress_set(service_item *sitem, BOOLEAN b);
+extern void yudsc_service_suppress_set(service_item *sitem, boolean b);
 
-extern void yudsc_service_enable_set(service_item *sitem, BOOLEAN b);
+extern void yudsc_service_enable_set(service_item *sitem, boolean b);
 
-extern void yudsc_service_expect_response_set(service_item *sitem, serviceResponseExpect rule, yuint8 *data, yuint32 size);
+extern void yudsc_service_expect_response_set(service_item *sitem, service_response_expect rule, yuint8 *data, yuint32 size);
 
-extern void yudsc_service_finish_byte_set(service_item *sitem, serviceFinishCondition rule, yuint8 *data, yuint32 size);
+extern void yudsc_service_finish_byte_set(service_item *sitem, service_finish_condition rule, yuint8 *data, yuint32 size);
 
-extern void yudsc_service_key_set(service_item *sitem, YKey key_callback);
+extern void yudsc_service_key_set(service_item *sitem, ykey key_callback);
 
 extern void yudsc_ev_loop_set(uds_client* udsc, struct ev_loop* loop);
 
@@ -366,36 +366,36 @@ extern void yudsc_doip_channel_unbind(uds_client *udsc);
 
 extern void *yudsc_doip_channel(uds_client *udsc);
 
-extern BOOLEAN yudsc_runtime_data_statis_get(uds_client *udsc, runtime_data_statis_t *rt_data_statis);
+extern boolean yudsc_runtime_data_statis_get(uds_client *udsc, runtime_data_statis_t *rt_data_statis);
 
-extern void yudsc_runtime_data_statis_enable(uds_client *udsc, BOOLEAN en);
+extern void yudsc_runtime_data_statis_enable(uds_client *udsc, boolean en);
 
-extern BOOLEAN yudsc_service_item_capacity_init(uds_client *udsc, int size);
+extern boolean yudsc_service_item_capacity_init(uds_client *udsc, int size);
 
 extern int yudsc_service_item_capacity(uds_client *udsc);
 
 extern int yudsc_security_access_key_set(uds_client *udsc, yuint8 *key, yuint16 key_size);
 
-extern int yudsc_tester_present_config(uds_client *udsc, yuint8 tpEnable, yuint8 isTpRefresh, yuint32 tpInterval, yuint32 tpta, yuint32 tpsa);
+extern int yudsc_tester_present_config(uds_client *udsc, yuint8 tester_present_enable, yuint8 is_tester_present_refresh, yuint32 tester_present_interval, yuint32 tester_present_ta, yuint32 tester_present_sa);
 
-extern int yudsc_fail_abort(uds_client *udsc, BOOLEAN b);
+extern int yudsc_fail_abort(uds_client *udsc, boolean b);
 
 extern int yudsc_id_set(uds_client *udsc, int id);
 
 extern int yudsc_id(uds_client *udsc);
 
-extern int yudsc_idle_set(uds_client *udsc, BOOLEAN b);
+extern int yudsc_idle_set(uds_client *udsc, boolean b);
 
-extern BOOLEAN yudsc_is_idle(uds_client *udsc);
+extern boolean yudsc_is_idle(uds_client *udsc);
 
 extern int yudsc_td_36_progress_interval_set(uds_client *udsc, yuint32 interval);
 
 extern int yudsc_name_set(uds_client *udsc, char *name);
 
-extern BOOLEAN yudsc_asc_record_enable(uds_client *udsc);
+extern boolean yudsc_asc_record_enable(uds_client *udsc);
 
-extern void yudsc_asc_record_enable_set(uds_client *udsc, BOOLEAN b);
+extern void yudsc_asc_record_enable_set(uds_client *udsc, boolean b);
 
-extern void yudsc_msg_parse_enable_set(uds_client *udsc, BOOLEAN b);
+extern void yudsc_msg_parse_enable_set(uds_client *udsc, boolean b);
 
 #endif /* __YUDS_CLIENT_H__ */

@@ -33,18 +33,18 @@
 
 /* ------------------------------------------------------------------------------------------------------- */
 
-struct YByteArray;
-typedef struct YByteArray YByteArray;
+struct ybyte_array;
+typedef struct ybyte_array ybyte_array;
 
-typedef enum serviceResponseExpect {
+typedef enum service_response_expect {
     NOT_SET_RESPONSE_EXPECT = 0, /* 未设置预期响应 */
     POSITIVE_RESPONSE_EXPECT, /* 预期正响应 */
     NEGATIVE_RESPONSE_EXPECT, /* 预期负响应 */
     MATCH_RESPONSE_EXPECT, /* 校验预期响应 */
     NO_RESPONSE_EXPECT, /* 预期无响应 */
-} serviceResponseExpect;
+} service_response_expect;
 
-typedef enum serviceFinishCondition {
+typedef enum service_finish_condition {
     FINISH_DEFAULT_SETTING = 0, /* 默认设置 */
     FINISH_EQUAL_TO, /* 等于结束响应字符 */
     FINISH_UN_EQUAL_TO, /* 不等于结束响应字符 */
@@ -52,7 +52,7 @@ typedef enum serviceFinishCondition {
     FINISH_EQUAL_TO_NEGATIVE_RESPONSE, /* 等于负响应结束 */
     FINISH_EQUAL_TO_NO_RESPONSE, /* 无响应结束 */
     FINISH_EQUAL_TO_NORMAL_RESPONSE, /* 有响应结束 */
-} serviceFinishCondition;
+} service_finish_condition;
     
 typedef struct service_config {
     /* 诊断服务ID */
@@ -74,13 +74,13 @@ typedef struct service_config {
     /* 源地址 */
     yuint32 sa; 
     /* 诊断服务中的可变数据，UDS 客户端将根据 sid sub did和这个自动构建UDS请求数据 */
-    YByteArray *variableByte; 
+    ybyte_array *variableByte; 
     /* 预期诊断响应数据，用于判断当前诊断服务执行是否符合预期 */
-    YByteArray *expectResponByte; 
+    ybyte_array *expectResponByte; 
     /* 预期响应规则 */
     yuint32 expectRespon_rule;
     /* 响应结束匹配数据，用于判断当前诊断服务是否需要重复执行 */
-    YByteArray *finishByte;  
+    ybyte_array *finishByte;  
     /* 响应结束规则 */
     yuint32 finish_rule; 
     /* 响应结束最大匹配次数 */
@@ -88,22 +88,22 @@ typedef struct service_config {
     /* 请求结果回调函数的ID, 大于0才是有效值 */
     yuint32 rr_callid; 
     struct  {
-        yuint8 dataFormatIdentifier;
-        yuint8 addressAndLengthFormatIdentifier;
-        yuint32 memoryAddress;
-        yuint32 memorySize;
+        yuint8 data_format_identifier;
+        yuint8 address_and_length_format_identifier;
+        yuint32 memory_address;
+        yuint32 memory_size;
     } service_34_rd;
     struct  {
-        yuint8 modeOfOperation;
-        yuint16 filePathAndNameLength;
-        char filePathAndName[256];
-        yuint8 dataFormatIdentifier;
-        yuint8 fileSizeParameterLength;
-        yuint32 fileSizeUnCompressed;
-        yuint32 fileSizeCompressed;
+        yuint8 mode_of_operation;
+        yuint16 file_path_and_name_length;
+        char file_path_and_name[256];
+        yuint8 data_format_identifier;
+        yuint8 file_size_parameter_length;
+        yuint32 file_size_uncompressed;
+        yuint32 file_size_compressed;
     } service_38_rft;
     /* 36服务传输数据块最大长度 */
-    yuint32 maxNumberOfBlockLength;
+    yuint32 max_number_of_block_length;
     /* 本地刷写文件路径 */
     char local_path[256]; 
     /* 诊断服务项的描述信息 */
@@ -115,21 +115,21 @@ typedef struct udsc_runtime_config {
     /* 诊断项任务处理发生错误后时候中止执行服务表项任务 */
     yuint8 isFailAbort;
     /* 使能诊断仪在线请求报文 */
-    yuint8 tpEnable; 
+    yuint8 tester_present_enable; 
     /* 是否被UDS报文刷新定时器 */
-    yuint8 isTpRefresh;
+    yuint8 is_tester_present_refresh;
     /* 发送间隔 unit ms */
-    yuint32 tpInterval;
+    yuint32 tester_present_interval;
     /* 诊断目的地址 */
-    yuint32 tpta;
+    yuint32 tester_present_ta;
     /* 诊断源地址 */
-    yuint32 tpsa;
+    yuint32 tester_present_sa;
     /* 36服务传输进度通告间隔 */
     yuint32 td_36_notify_interval;    
     /* UDS客户端运行时数据统计 */ 
     yuint8 runtime_statis_enable;    
-    BOOLEAN uds_msg_parse_enable; /* UDS消息解析使能，开启后有些许性能损耗 */
-    BOOLEAN uds_asc_record_enable; /* UDS消息记录，开启后有些许性能损耗 */
+    boolean uds_msg_parse_enable; /* UDS消息解析使能，开启后有些许性能损耗 */
+    boolean uds_asc_record_enable; /* UDS消息记录，开启后有些许性能损耗 */
 } udsc_runtime_config;
 
 typedef struct udsc_create_config {

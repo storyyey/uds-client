@@ -566,7 +566,7 @@ int doipc_header_decode(yuint8 *buf, yuint32 buf_size, yuint8 *ver, yuint16 *typ
     return 0;
 }
 
-static BOOLEAN doipc_tcp_connect_check(doip_client_t *doipc)
+static boolean doipc_tcp_connect_check(doip_client_t *doipc)
 {
     fd_set writefds;
     fd_set readfds;

@@ -59,7 +59,7 @@ static pthread_mutex_t dms_mutex_lock = PTHREAD_MUTEX_INITIALIZER;
 #define DM_TX_BUFF(dm) dm_txbuf(dm),dm_txbuf_size(dm)
 #define DM_RX_BUFF(dm) dm_rxbuf(dm),dm_rxbuf_size(dm)
 
-/* 每个ota master创建后，创建多少个默认的uds客户端 */
+/* 每个diag master创建后，创建多少个默认的uds客户端 */
 #define DM_UDSC_CAPACITY_DEF (10)
 
 struct DMS;
@@ -226,15 +226,15 @@ static int dm_sendto_api(ydiag_master *dm, unsigned char *buff, unsigned int siz
     return bytes_sent;
 }
 
-/* 停止diag master左右的事件循环，这将导致ota master事件循环退出 */
+/* 停止diag master左右的事件循环，这将导致diag master事件循环退出 */
 static void dm_ev_stop(ydiag_master *dm)
 { 
     ev_io_stop(dm->loop, &dm->iread_watcher);
     ev_io_stop(dm->loop, &dm->iwrite_watcher);
     ev_timer_stop(dm->loop, &dm->keepalive_watcher);
 #ifndef __HAVE_DIAG_MASTER_PTHREAD__ 
-    /* 在未启用线程的情况下直接销毁ota master */
-    /* 在启动线程的时候所有事件退出后,会在线程内自动销毁ota master */
+    /* 在未启用线程的情况下直接销毁diag master */
+    /* 在启动线程的时候所有事件退出后,会在线程内自动销毁diag master */
     dm_destroy(dm);
 #endif /* __HAVE_DIAG_MASTER_PTHREAD__ */
 }
@@ -413,7 +413,7 @@ static void dm_ipc_event_udsc_create_handler(ydiag_master *dm, yuint32 recode, y
             log_i("UDS client service item capacity reinit %d ", config.service_item_capacity);
             yudsc_service_item_capacity_init(udsc, config.service_item_capacity);
         }
-        snprintf(udsc->om_name, sizeof(udsc->om_name), "%s", dm->name);
+        snprintf(udsc->dm_name, sizeof(udsc->dm_name), "%s", dm->name);
         to_id = yudsc_id(udsc); /* 将创建的UDS客户端ID返回给diag master API使用 */
         yudsc_idle_set(udsc, false); /* 设置UDS客户端已经被使用 */ 
         yudsc_name_set(udsc, config.udsc_name);
@@ -533,12 +533,12 @@ static void dm_ipc_event_service_config_handler(ydiag_master *dm, yuint32 recode
     dp = pointer_offset_nbyte(dm_rxbuf(dm), DM_IPC_EVENT_MSG_SIZE);
     log_i("Service config: %s", dp); 
     memset(&sconfig, 0, sizeof(sconfig));
-    sconfig.variableByte = YByteArrayNew();
-    sconfig.expectResponByte = YByteArrayNew();
-    sconfig.finishByte = YByteArrayNew(); 
-    YByteArrayClear(sconfig.variableByte);
-    YByteArrayClear(sconfig.expectResponByte);
-    YByteArrayClear(sconfig.finishByte);
+    sconfig.variableByte = y_byte_array_new();
+    sconfig.expectResponByte = y_byte_array_new();
+    sconfig.finishByte = y_byte_array_new(); 
+    y_byte_array_clear(sconfig.variableByte);
+    y_byte_array_clear(sconfig.expectResponByte);
+    y_byte_array_clear(sconfig.finishByte);
     ydm_service_config_decode(dp, strlen((const char *)dp), &sconfig);
     if ((si = yudsc_service_item_add(udsc, sconfig.desc))) {    
         yudsc_service_enable_set(si, true);  
@@ -548,12 +548,12 @@ static void dm_ipc_event_service_config_handler(ydiag_master *dm, yuint32 recode
         yudsc_service_delay_set(si, sconfig.delay);
         yudsc_service_timeout_set(si, sconfig.timeout);
 
-        YByteArrayAppendArray(si->variable_byte, sconfig.variableByte);
+        y_byte_array_append_array(si->variable_byte, sconfig.variableByte);
   
         yudsc_service_expect_response_set(si, sconfig.expectRespon_rule, \
-            YByteArrayConstData(sconfig.expectResponByte), YByteArrayCount(sconfig.expectResponByte));
+            y_byte_array_const_data(sconfig.expectResponByte), y_byte_array_count(sconfig.expectResponByte));
         yudsc_service_finish_byte_set(si, sconfig.finish_rule, \
-            YByteArrayConstData(sconfig.finishByte), YByteArrayCount(sconfig.finishByte));        
+            y_byte_array_const_data(sconfig.finishByte), y_byte_array_count(sconfig.finishByte));        
         si->finish_num_max = sconfig.finish_num_max;
         si->ta = sconfig.ta;
         si->sa = sconfig.sa;
@@ -564,12 +564,12 @@ static void dm_ipc_event_service_config_handler(ydiag_master *dm, yuint32 recode
             si->issuppress = sconfig.sub & UDS_SUPPRESS_POS_RSP_MSG_IND_MASK ? true : false;
         }
         si->rr_callid = sconfig.rr_callid;
-        si->td_36.maxNumberOfBlockLength = sconfig.maxNumberOfBlockLength;
+        si->td_36.max_number_of_block_length = sconfig.max_number_of_block_length;
         if (si->sid == UDS_SERVICES_RD) {
-            si->rd_34.dataFormatIdentifier = sconfig.service_34_rd.dataFormatIdentifier;
-            si->rd_34.addressAndLengthFormatIdentifier = sconfig.service_34_rd.addressAndLengthFormatIdentifier;
-            si->rd_34.memoryAddress = sconfig.service_34_rd.memoryAddress;            
-            si->rd_34.memorySize = sconfig.service_34_rd.memorySize;            
+            si->rd_34.data_format_identifier = sconfig.service_34_rd.data_format_identifier;
+            si->rd_34.address_and_length_format_identifier = sconfig.service_34_rd.address_and_length_format_identifier;
+            si->rd_34.memory_address = sconfig.service_34_rd.memory_address;            
+            si->rd_34.memory_size = sconfig.service_34_rd.memory_size;            
         }
         else if (si->sid == UDS_SERVICES_RFT) {
             /* 38服务是可选数据，这里动态申请一下内存 */
@@ -581,13 +581,13 @@ static void dm_ipc_event_service_config_handler(ydiag_master *dm, yuint32 recode
                 }
             }
             if (si->rft_38) {
-                si->rft_38->modeOfOperation = sconfig.service_38_rft.modeOfOperation;
-                si->rft_38->filePathAndNameLength = sconfig.service_38_rft.filePathAndNameLength;
-                si->rft_38->filePathAndName = strdup(sconfig.service_38_rft.filePathAndName);
-                si->rft_38->dataFormatIdentifier = sconfig.service_38_rft.dataFormatIdentifier;            
-                si->rft_38->fileSizeParameterLength = sconfig.service_38_rft.fileSizeParameterLength;
-                si->rft_38->fileSizeUnCompressed = sconfig.service_38_rft.fileSizeUnCompressed;
-                si->rft_38->fileSizeCompressed = sconfig.service_38_rft.fileSizeCompressed;
+                si->rft_38->mode_of_operation = sconfig.service_38_rft.mode_of_operation;
+                si->rft_38->file_path_and_name_length = sconfig.service_38_rft.file_path_and_name_length;
+                si->rft_38->file_path_and_name = strdup(sconfig.service_38_rft.file_path_and_name);
+                si->rft_38->data_format_identifier = sconfig.service_38_rft.data_format_identifier;            
+                si->rft_38->file_size_parameter_length = sconfig.service_38_rft.file_size_parameter_length;
+                si->rft_38->file_size_uncompressed = sconfig.service_38_rft.file_size_uncompressed;
+                si->rft_38->file_size_compressed = sconfig.service_38_rft.file_size_compressed;
             }
         }
         else if (si->sid == UDS_SERVICES_SA) {
@@ -600,16 +600,16 @@ static void dm_ipc_event_service_config_handler(ydiag_master *dm, yuint32 recode
         }
         yudsc_service_request_build(si);
 #ifdef __HAVE_UDS_PROTOCOL_ANALYSIS__
-        yuds_protocol_parse(YByteArrayConstData(si->request_byte), YByteArrayCount(si->request_byte)); 
+        yuds_protocol_parse(y_byte_array_const_data(si->request_byte), y_byte_array_count(si->request_byte)); 
 #endif /* __HAVE_UDS_PROTOCOL_ANALYSIS__ */
     }
     else {
         to_recode = DM_ERR_UDS_SERVICE_ADD;
         log_e("fatal error UDS service add failed");
     }
-    YByteArrayDelete(sconfig.variableByte);
-    YByteArrayDelete(sconfig.expectResponByte);
-    YByteArrayDelete(sconfig.finishByte);
+    y_byte_array_delete(sconfig.variableByte);
+    y_byte_array_delete(sconfig.expectResponByte);
+    y_byte_array_delete(sconfig.finishByte);
     log_d("Event type: 0x%02X(%s) Recode: %d(%s) udsc ID: %d", \
         evtype, ydm_ipc_event_str(evtype), to_recode, ydm_event_rcode_str(to_recode), to_id);
     ydm_common_encode(DM_TX_BUFF(dm), evtype, to_recode, to_id, IPC_USE_USER_TIME_STAMP);
@@ -635,7 +635,7 @@ static void dm_ipc_event_runtime_config_handler(ydiag_master *dm, yuint32 recode
     /* 设置是否诊断服务执行出现非预期结果就中止UDS客户端执行 */
     yudsc_fail_abort(udsc, gconfig.isFailAbort);
     /* 设置3E报文的发送逻辑 */
-    yudsc_tester_present_config(udsc, gconfig.tpEnable, gconfig.isTpRefresh, gconfig.tpInterval, gconfig.tpta, gconfig.tpsa);
+    yudsc_tester_present_config(udsc, gconfig.tester_present_enable, gconfig.is_tester_present_refresh, gconfig.tester_present_interval, gconfig.tester_present_ta, gconfig.tester_present_sa);
     /*  */
     yudsc_td_36_progress_interval_set(udsc, gconfig.td_36_notify_interval);
 
@@ -923,7 +923,7 @@ static void dm_ipc_event_terminal_control_service_destroy_handler(ydiag_master *
 
 static void dm_ipc_event_instance_destroy_handler(ydiag_master *dm, yuint32 recode, yuint16 udscid)
 {
-    log_i("The ota master %s instance destroy", dm->name);
+    log_i("The diag master %s instance destroy", dm->name);
     dm_ev_stop(dm);     
 }
 
@@ -947,7 +947,7 @@ static void dm_ev_timer_keepalive_handler(struct ev_loop *loop, ev_timer *w, int
     if (dm->keepalive_cnt > 10) {           
         log_put_mdc(DM_DIAG_MASTER_MDC_KEY, dm->name);
         log_put_mdc(DM_UDSC_MDC_KEY, "*");
-        log_w("The ota master api is offline. The ota master exits");
+        log_w("The diag master api is offline. The diag master exits");
         dm_ev_stop(dm);     
     }
 }
@@ -1085,7 +1085,7 @@ CREATE_FALIED:
     return -1;
 }
 /*
-    UDS请求发送给ota master api，由ota master api负责把UDS请求发送给其他ECU
+    UDS请求发送给diag master api，由diag master api负责把UDS请求发送给其他ECU
 */
 static int dm_uds_service_request_event_emit(ydiag_master *dm, yuint16 udscid, const yuint8 *data, yuint32 size, yuint32 sa, yuint32 ta, yuint32 tatype)
 {
@@ -1116,7 +1116,7 @@ static int dm_uds_service_request_event_emit(ydiag_master *dm, yuint16 udscid, c
 }
 
 /*
-    所有的UDS服务处理结束或者因异常中断执行UDS服务后，将结果发送给ota master api处理，
+    所有的UDS服务处理结束或者因异常中断执行UDS服务后，将结果发送给diag master api处理，
     结果包含最后一次UDS服务请求和应答数据
 */
 static int dm_uds_client_result_event_emit(ydiag_master *dm, yuint16 udscid, yuint32 result, const yuint8 *ind, yuint32 indl, const yuint8 *resp, yuint32 respl)
@@ -1141,15 +1141,15 @@ static int dm_uds_client_result_event_emit(ydiag_master *dm, yuint16 udscid, yui
     memappend(pointer_offset_nbyte(dm_txbuf(dm), SERVICE_FINISH_RESULT_IND_OFFSET + indl + SERVICE_FINISH_RESULT_RESP_LEN_SIZE), resp, respl);
     /* encode 通用的头部固定数据 */
     ydm_common_encode(DM_TX_BUFF(dm), evtype, recode, udscid, IPC_USE_USER_TIME_STAMP);
-    /* 发送给ota master api */
+    /* 发送给diag master api */
     dm_event_emit_to_api(dm, dm_txbuf(dm), sl);
 
     return 0;
 }
 
 /* 
-   如果ota master api注册了UDS服务结果处理函数，
-   ota master 将UDS服务的应答数据，发送给 ota master api 处理 
+   如果diag master api注册了UDS服务结果处理函数，
+   diag master 将UDS服务的应答数据，发送给 diag master api 处理 
 */
 static int dm_uds_service_result_event_emit(ydiag_master *dm, yuint16 udscid, const yuint8 *data, yuint32 size, yuint32 rr_callid)
 {
@@ -1161,7 +1161,7 @@ static int dm_uds_service_result_event_emit(ydiag_master *dm, yuint16 udscid, co
         size = dm_txbuf_size(dm) - SERVICE_REQUEST_RESULT_SIZE - DM_IPC_EVENT_MSG_SIZE;
         recode = DM_ERR_UDS_RESPONSE_OVERLEN; /* 错误码 */
     }
-    /* encode 4 byte ota master api管理的诊断结果处理回调函数ID */
+    /* encode 4 byte diag master api管理的诊断结果处理回调函数ID */
     memappend(pointer_offset_nbyte(dm_txbuf(dm), SERVICE_REQUEST_RESULT_RR_CALLID_OFFSET), &rr_callid, SERVICE_REQUEST_RESULT_RR_CALLID_SIZE);    
     /* encode 4 byte 诊断结果数据长度 */
     memappend(pointer_offset_nbyte(dm_txbuf(dm), SERVICE_REQUEST_RESULT_DATA_LEN_OFFSET), &size, SERVICE_REQUEST_RESULT_DATA_LEN_SIZE);    
@@ -1258,7 +1258,7 @@ ydiag_master *dm_create(DMS *dms, const char *dm_path, const char *dmapi_path)
         goto CREAT_FAILED;
     }
 #else /* __HAVE_DIAG_MASTER_PTHREAD__ */
-    /* ota master 不使用线程进行事件循环 */
+    /* diag master 不使用线程进行事件循环 */
     /* 共用一个事件循环loop */
     dm->loop = dms->loop;
 #endif /* __HAVE_DIAG_MASTER_PTHREAD__ */
@@ -1274,10 +1274,10 @@ ydiag_master *dm_create(DMS *dms, const char *dm_path, const char *dmapi_path)
         log_e("fatal error yom_ipc_channel_create failed");
         goto CREAT_FAILED;
     }
-    /* 保存OTA master的unix socket的路径 */
+    /* 保存diag master的unix socket的路径 */
     snprintf(dm->dm_path, sizeof(dm->dm_path), "%s", dm_path);
 
-    /* 保存OTA master api的unix socket的路径 */
+    /* 保存diag master api的unix socket的路径 */
     snprintf(dm->dmapi_event_emit_path, sizeof(dm->dmapi_event_emit_path), "%s", dmapi_path);
 #ifdef __HAVE_DIAG_MASTER_PTHREAD__   
     /* 传入用户数据指针, 便于在各个回调函数内使用 */
@@ -1342,7 +1342,7 @@ ydiag_master *dm_create(DMS *dms, const char *dm_path, const char *dmapi_path)
     
     return dm;
 CREAT_FAILED:
-    log_d(" OTA master create error");
+    log_d(" diag master create error");
     if (dm->sockfd > 0) {
         close(dm->sockfd);
     }
@@ -1362,7 +1362,7 @@ void dm_destroy(ydiag_master *dm)
 {
     int udsc_index = 0;
 
-    /* 通知ota master即将销毁 */
+    /* 通知diag master即将销毁 */
     dm_instance_destroy_event_emit(dm);
 
     /* 停止活跃的UDS客户端并销毁 */
@@ -1392,7 +1392,7 @@ void dm_destroy(ydiag_master *dm)
     DMS_LOCK;
     if (dm->dms && \
         dm->index < DMS_DIAG_MASTER_NUM_MAX) {
-        /* 移除ota master在oms上的记录 */
+        /* 移除diag master在oms上的记录 */
         dm->dms->dm[dm->index] = 0;
     }
     DMS_UNLOCK;
@@ -1416,12 +1416,12 @@ void *dm_thread_run(void *arg)
     }
     pthread_detach(pthread_self());
     /* 开始事件循环，任意时刻都得存在事件，如果没有事件将导致线程退出 */
-    log_d("ota master event loop start.");
+    log_d("diag master event loop start.");
 
     ev_run(ydiag_master_ev_loop(dm), 0);
     /* 事件循环退出销毁diag master */
     dm_destroy(dm);
-    log_d("ota master event loop exit thread exits.");
+    log_d("diag master event loop exit thread exits.");
 
     return 0;
 }
@@ -1455,11 +1455,11 @@ static void dm_ev_io_oms_read(struct ev_loop *loop, ev_io *w, int e)
                 sizeof(dms->rxbuf) - DM_IPC_EVENT_MSG_SIZE, &cf);
             if (access(cf.event_emit_path, F_OK) != 0 || \
                 access(cf.event_listen_path, F_OK) != 0) {
-                /* 无法获取ota master api的存在 */
+                /* 无法获取diag master api的存在 */
                 recode = DM_ERR_OMAPI_UNKNOWN;
                 goto REPLY;
             }
-            /* 找到一个空闲的ota master位置 */            
+            /* 找到一个空闲的diag master位置 */            
             DMS_LOCK;
             for (om_index = 0; om_index < DMS_DIAG_MASTER_NUM_MAX; om_index++) {
                 if (dms->dm[om_index] == NULL) {
@@ -1474,8 +1474,8 @@ static void dm_ev_io_oms_read(struct ev_loop *loop, ev_io *w, int e)
             }
             /* 创建新的diag master的unix socket path */
             snprintf(dm_path, sizeof(dm_path), DM_UNIX_SOCKET_PATH_PREFIX"%d", om_index);
-            /* 创建新的ota master */
-            log_i("OTA master unix socket address: %s yapi unix socket address: %s", dm_path, cf.event_emit_path);
+            /* 创建新的diag master */
+            log_i("diag master unix socket address: %s yapi unix socket address: %s", dm_path, cf.event_emit_path);
             dm = dm_create(dms, dm_path, cf.event_emit_path);
             if (dm == NULL) {
                 log_d("diag master create error");
@@ -1483,17 +1483,17 @@ static void dm_ev_io_oms_read(struct ev_loop *loop, ev_io *w, int e)
                 goto REPLY;
             }    
             snprintf(dm->dmapi_event_listen_path, sizeof(dm->dmapi_event_listen_path), "%s", cf.event_listen_path);
-            /* 创建ota master的事件循环线程,用于和ota master api进行IPC通信处理 */
+            /* 创建diag master的事件循环线程,用于和diag master api进行IPC通信处理 */
 #ifdef __HAVE_DIAG_MASTER_PTHREAD__
-/* ota master 使用线程进行事件循环,需要创建线程 */
+/* diag master 使用线程进行事件循环,需要创建线程 */
             if (pthread_create(&tidp, 0, dm_thread_run, dm) != 0) {
-                log_d(" ota master thread create failed.");  
-                dm_destroy(dm); /* 创建失败销毁释放ota master */              
+                log_d(" diag master thread create failed.");  
+                dm_destroy(dm); /* 创建失败销毁释放diag master */              
                 recode = DM_ERR_DIAG_MASTER_CREATE;
                 goto REPLY;
             }
 #endif /* __HAVE_DIAG_MASTER_PTHREAD__ */            
-            log_i("yapi connect OTA master create success.");            
+            log_i("yapi connect diag master create success.");            
             DMS_LOCK;
             dms->dm[om_index] = dm;
             snprintf(dm->name, sizeof(dm->name), "%d", om_index);
@@ -1666,7 +1666,7 @@ DMS *dm_oms_create()
     ev_timer_start(dms->loop, &dms->logfile_limit_watcher);
     return dms;
 CREAT_FAILED:
-    log_d(" OTA master create error");
+    log_d("diag master create error");
     if (dms->sockfd > 0) {
         close(dms->sockfd);
     }
@@ -1686,11 +1686,11 @@ void *dm_oms_thread_run(void *arg)
     }
     pthread_detach(pthread_self());
     /* 开始事件循环，任意时刻都得存在事件，如果没有事件将导致线程退出 */
-    log_d("ota master oms event loop start.");
+    log_d("diag master oms event loop start.");
 
     ev_run(dms->loop, 0);
     /* 正常情况下事件循环是不会退出的，退出就说明不正常了 */
-    log_e("ota master oms event loop exit thread exits.");    
+    log_e("diag master oms event loop exit thread exits.");    
     /* 释放内存 */
     ev_loop_destroy(dms->loop);
     yfree(dms);
@@ -1703,15 +1703,15 @@ int dm_oms_start(void)
 {
     pthread_t tidp = 0;
 
-    /* OMS结构体用于管理接入的ota master api */
+    /* OMS结构体用于管理接入的diag master api */
     DMS *dms = dm_oms_create();
     if (dms == NULL) {
-        log_d("ota master oms create failed.");
+        log_d("diag master oms create failed.");
         return -1;
     }
     /* 创建线程用于事件循环 */
     if (pthread_create(&tidp, 0, dm_oms_thread_run, dms) == 0) {
-        log_d(" ota master oms thread create success.");
+        log_d(" diag master oms thread create success.");
     }
     else {
         goto OMS_START_FAILE;
@@ -1721,7 +1721,7 @@ int dm_oms_start(void)
 
     return 0;
 OMS_START_FAILE:
-    log_d("ota master oms thread start faile");
+    log_d("diag master oms thread start faile");
     if (dms->sockfd > 0) {
         close(dms->sockfd);
     }
@@ -1733,8 +1733,8 @@ OMS_START_FAILE:
 }
 
 struct om_runtime_config_s {
-    BOOLEAN parent_active;
-    BOOLEAN is_debug_enable;
+    boolean parent_active;
+    boolean is_debug_enable;
     pid_t child_pid;
     int process_lock_fd;
     char log_config_file[256];

@@ -388,63 +388,63 @@ void syapi_dm_event_loop()
 }
 
 // 创建一个新的YByteArray对象并返回其指针  
-YByteArray *yapi_byte_array_new()
+ybyte_array *yapi_byte_array_new()
 {
-    return YByteArrayNew();
+    return y_byte_array_new();
 }
   
 // 释放YByteArray对象所占用的内存  
-void yapi_byte_array_delete(YByteArray *arr)
+void yapi_byte_array_delete(ybyte_array *arr)
 {
-    return YByteArrayDelete(arr);
+    return y_byte_array_delete(arr);
 }
   
 // 清空YByteArray对象的内容  
-void yapi_byte_array_clear(YByteArray *arr)
+void yapi_byte_array_clear(ybyte_array *arr)
 {
-    return YByteArrayClear(arr);
+    return y_byte_array_clear(arr);
 }
   
 // 返回YByteArray对象的常量数据指针  
-const yuint8 *yapi_byte_array_const_data(YByteArray *arr)
+const yuint8 *yapi_byte_array_const_data(ybyte_array *arr)
 {
-    return YByteArrayConstData(arr);
+    return y_byte_array_const_data(arr);
 }
   
 // 返回YByteArray对象中的元素数量  
-int yapi_byte_array_count(YByteArray *arr)
+int yapi_byte_array_count(ybyte_array *arr)
 {
-    return YByteArrayCount(arr);
+    return y_byte_array_count(arr);
 }
   
 // 在YByteArray对象末尾添加一个字符  
-void yapi_byte_array_append_char(YByteArray *dest, yuint8 c)
+void yapi_byte_array_append_char(ybyte_array *dest, yuint8 c)
 {
-    return YByteArrayAppendChar(dest, c);
+    return y_byte_array_append_char(dest, c);
 }
   
 // 将一个YByteArray对象的内容追加到另一个YByteArray对象中  
-void yapi_byte_array_append_array(YByteArray *dest, YByteArray *src)  
+void yapi_byte_array_append_array(ybyte_array *dest, ybyte_array *src)  
 {
-    return YByteArrayAppendArray(dest, src);
+    return y_byte_array_append_array(dest, src);
 }
   
 // 在YByteArray对象末尾追加一个字符数组的内容  
-void yapi_byte_array_append_nchar(YByteArray *dest, yuint8 *c, yuint32 count)
+void yapi_byte_array_append_nchar(ybyte_array *dest, yuint8 *c, yuint32 count)
 {
-    return YByteArrayAppendNChar(dest, c, count);
+    return y_byte_array_append_nchar(dest, c, count);
 }
   
 // 比较两个YByteArray对象是否相等  
-int yapi_byte_array_equal(YByteArray *arr1, YByteArray *arr2)
+int yapi_byte_array_equal(ybyte_array *arr1, ybyte_array *arr2)
 {
-    return YByteArrayEqual(arr1, arr2);
+    return y_byte_array_equal(arr1, arr2);
 }
   
 // 比较一个YByteArray对象和一个字符数组的内容是否相等  
-int yapi_byte_array_char_equal(YByteArray *arr1, yuint8 *c, yuint32 count)
+int yapi_byte_array_char_equal(ybyte_array *arr1, yuint8 *c, yuint32 count)
 {
-    return YByteArrayCharEqual(arr1, c, count);
+    return y_byte_array_char_equal(arr1, c, count);
 }
 
 int yapi_om_log_print(enum yapi_log_level level, int (*printf)(const char *format, ...))

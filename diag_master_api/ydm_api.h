@@ -158,34 +158,34 @@ extern void ydm_api_request_event_loop(ydiag_master_api *dm_api);
 extern int ydm_api_terminal_control_service_create(ydiag_master_api *dm_api, terminal_control_service_info_t *trinfo);
 
 // 创建一个新的YByteArray对象并返回其指针  
-extern YByteArray *YByteArrayNew();  
+extern ybyte_array *y_byte_array_new();  
   
 // 释放YByteArray对象所占用的内存  
-extern void YByteArrayDelete(YByteArray *arr);  
+extern void y_byte_array_delete(ybyte_array *arr);  
   
 // 清空YByteArray对象的内容  
-extern void YByteArrayClear(YByteArray *arr);  
+extern void y_byte_array_clear(ybyte_array *arr);  
   
 // 返回YByteArray对象的常量数据指针  
-extern const yuint8 *YByteArrayConstData(YByteArray *arr);  
+extern const yuint8 *y_byte_array_const_data(ybyte_array *arr);  
   
 // 返回YByteArray对象中的元素数量  
-extern int YByteArrayCount(YByteArray *arr);  
+extern int y_byte_array_count(ybyte_array *arr);  
   
 // 在YByteArray对象末尾添加一个字符  
-extern void YByteArrayAppendChar(YByteArray *dest, yuint8 c);  
+extern void y_byte_array_append_char(ybyte_array *dest, yuint8 c);  
   
 // 将一个YByteArray对象的内容追加到另一个YByteArray对象中  
-extern void YByteArrayAppendArray(YByteArray *dest, YByteArray *src);  
+extern void y_byte_array_append_array(ybyte_array *dest, ybyte_array *src);  
   
 // 在YByteArray对象末尾追加一个字符数组的内容  
-extern void YByteArrayAppendNChar(YByteArray *dest, yuint8 *c, yuint32 count);  
+extern void y_byte_array_append_nchar(ybyte_array *dest, yuint8 *c, yuint32 count);  
   
 // 比较两个YByteArray对象是否相等  
-extern int YByteArrayEqual(YByteArray *arr1, YByteArray *arr2);  
+extern int y_byte_array_equal(ybyte_array *arr1, ybyte_array *arr2);  
   
 // 比较一个YByteArray对象和一个字符数组的内容是否相等  
-extern int YByteArrayCharEqual(YByteArray *arr1, yuint8 *c, yuint32 count);
+extern int y_byte_array_char_equal(ybyte_array *arr1, yuint8 *c, yuint32 count);
 
 extern int ydm_api_logd_print_set(int (*printf)(const char *format, ...));
 
