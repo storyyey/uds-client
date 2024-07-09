@@ -41,7 +41,7 @@
 #endif /* __HAVE_UDS_PROTOCOL_ANALYSIS__ */   
 #include "ydm.h"
 
-/* °æ±¾ºÅ */
+/* ç‰ˆæœ¬å· */
 #define DM_VERSION "1.0.1"
 
 #ifdef __HAVE_DIAG_MASTER_PTHREAD__
@@ -55,11 +55,11 @@ static pthread_mutex_t dms_mutex_lock = PTHREAD_MUTEX_INITIALIZER;
 
 #define DM_ATTR_ISSET(attr, f) (!!(attr & f))
 
-/* IPC½ÓÊÕ·¢ËÍ»º´æ */
+/* IPCæ¥æ”¶å‘é€ç¼“å­˜ */
 #define DM_TX_BUFF(dm) dm_txbuf(dm),dm_txbuf_size(dm)
 #define DM_RX_BUFF(dm) dm_rxbuf(dm),dm_rxbuf_size(dm)
 
-/* Ã¿¸ödiag master´´½¨ºó£¬´´½¨¶àÉÙ¸öÄ¬ÈÏµÄuds¿Í»§¶Ë */
+/* æ¯ä¸ªdiag masteråˆ›å»ºåï¼Œåˆ›å»ºå¤šå°‘ä¸ªé»˜è®¤çš„udså®¢æˆ·ç«¯ */
 #define DM_UDSC_CAPACITY_DEF (10)
 
 struct DMS;
@@ -76,24 +76,24 @@ typedef struct om_event_handler_s {
 typedef struct ydiag_master {
     char name[8]; 
     dm_event_handler_t event_calls[DM_IPC_EVENT_TYPE_MAX];
-    yuint32 event_valid_time; /* ÃüÁîÓĞĞ§Ê±¼ä,ÊÕ·¢¶Ë³¬Ê±µÄÃüÁîÔì³ÉµÄÒì³£ */      
-    yuint32 premsg_tv_sec; /* Ç°Ò»¸öÏûÏ¢µÄÊ±¼ä²ÎÊı£¬ÓÃÓÚÖØ¸´ÏûÏ¢È¥ÖØ */
-    yuint32 premsg_tv_usec; /* Ç°Ò»¸öÏûÏ¢µÄÊ±¼ä²ÎÊı£¬ÓÃÓÚÖØ¸´ÏûÏ¢È¥ÖØ */
-    int sockfd; /* Óëdm_apiÍ¨ĞÅÊ¹ÓÃ */
-    int index; /* Ë÷ÒıÖµ£¬ÔÚ´´½¨Ê±ÉèÖÃ */
-    struct ev_loop* loop; /* ÊÂ¼şÖ÷Ñ­»· */
-    ev_io iwrite_watcher; /* ¼àÌıIPC¶ÁÊÂ¼ş */
-    ev_io iread_watcher; /* ¼àÌıIPCĞ´ÊÂ¼ş */
-    ev_timer keepalive_watcher; /* ĞÄÌø¶¨Ê±Æ÷£¬ÓÃÓÚÅĞ¶Ïdiag master APIÊÇ·ñÔÚÏß */
-    yuint32 keepalive_cnt; /* ĞÄÌø¼ÆÊı£¬ÊÕµ½ĞÄÌøÓ¦´ğ¼ÆÊıÇåÁã£¬³¬¹ı¼ÆÊıÔòÈÏÎªdiag master API³öÏÖÒì³£ */
+    yuint32 event_valid_time; /* å‘½ä»¤æœ‰æ•ˆæ—¶é—´,æ”¶å‘ç«¯è¶…æ—¶çš„å‘½ä»¤é€ æˆçš„å¼‚å¸¸ */      
+    yuint32 premsg_tv_sec; /* å‰ä¸€ä¸ªæ¶ˆæ¯çš„æ—¶é—´å‚æ•°ï¼Œç”¨äºé‡å¤æ¶ˆæ¯å»é‡ */
+    yuint32 premsg_tv_usec; /* å‰ä¸€ä¸ªæ¶ˆæ¯çš„æ—¶é—´å‚æ•°ï¼Œç”¨äºé‡å¤æ¶ˆæ¯å»é‡ */
+    int sockfd; /* ä¸dm_apié€šä¿¡ä½¿ç”¨ */
+    int index; /* ç´¢å¼•å€¼ï¼Œåœ¨åˆ›å»ºæ—¶è®¾ç½® */
+    struct ev_loop* loop; /* äº‹ä»¶ä¸»å¾ªç¯ */
+    ev_io iwrite_watcher; /* ç›‘å¬IPCè¯»äº‹ä»¶ */
+    ev_io iread_watcher; /* ç›‘å¬IPCå†™äº‹ä»¶ */
+    ev_timer keepalive_watcher; /* å¿ƒè·³å®šæ—¶å™¨ï¼Œç”¨äºåˆ¤æ–­diag master APIæ˜¯å¦åœ¨çº¿ */
+    yuint32 keepalive_cnt; /* å¿ƒè·³è®¡æ•°ï¼Œæ”¶åˆ°å¿ƒè·³åº”ç­”è®¡æ•°æ¸…é›¶ï¼Œè¶…è¿‡è®¡æ•°åˆ™è®¤ä¸ºdiag master APIå‡ºç°å¼‚å¸¸ */
     yuint32 keepalive_interval;
-    yuint32 udsc_cnt; /* UDS¿Í»§¶ËÊıÁ¿ */
-    uds_client *udscs[DM_UDSC_CAPACITY_MAX]; /* uds¿Í»§¶Ë±í£¬Êı×éÏÂ±ê¾ÍÊÇUDS¿Í»§¶ËµÄidÖµ */
-    yuint8 txbuf[IPC_TX_BUFF_SIZE]; /* socket ·¢ËÍbuff */
-    yuint8 rxbuf[IPC_RX_BUFF_SIZE]; /* socket ½ÓÊÕbuff */
-    char dm_path[IPC_PATH_LEN]; /* diag masterµÄUNIX socketÂ·¾¶ */
-    char dmapi_event_emit_path[IPC_PATH_LEN]; /* diag master APIµÄUNIX socketÂ·¾¶ */
-    char dmapi_event_listen_path[IPC_PATH_LEN]; /* diag master APIµÄUNIX socketÂ·¾¶»Øµ÷ĞÅÏ¢Ê¹ÓÃ */
+    yuint32 udsc_cnt; /* UDSå®¢æˆ·ç«¯æ•°é‡ */
+    uds_client *udscs[DM_UDSC_CAPACITY_MAX]; /* udså®¢æˆ·ç«¯è¡¨ï¼Œæ•°ç»„ä¸‹æ ‡å°±æ˜¯UDSå®¢æˆ·ç«¯çš„idå€¼ */
+    yuint8 txbuf[IPC_TX_BUFF_SIZE]; /* socket å‘é€buff */
+    yuint8 rxbuf[IPC_RX_BUFF_SIZE]; /* socket æ¥æ”¶buff */
+    char dm_path[IPC_PATH_LEN]; /* diag masterçš„UNIX socketè·¯å¾„ */
+    char dmapi_event_emit_path[IPC_PATH_LEN]; /* diag master APIçš„UNIX socketè·¯å¾„ */
+    char dmapi_event_listen_path[IPC_PATH_LEN]; /* diag master APIçš„UNIX socketè·¯å¾„å›è°ƒä¿¡æ¯ä½¿ç”¨ */
 #define TERMINAL_REMOTE_CAPACITY_MAX (10)
     terminal_control_service_t *tcss[TERMINAL_REMOTE_CAPACITY_MAX]; 
     DMS *dms;
@@ -104,16 +104,16 @@ typedef struct ydiag_master {
 #define IPC_CMD_IS_VALID(evtype) ((evtype) >= 0 && (evtype) < DM_IPC_EVENT_TYPE_MAX)
 
 typedef struct DMS {    
-    int sockfd; /* Óëdm_apiÍ¨ĞÅÊ¹ÓÃ */
-    struct ev_loop* loop; /* ÊÂ¼şÖ÷Ñ­»· */
-    ev_io iwrite_watcher; /* ¼àÌıIPC¶ÁÊÂ¼ş */
-    ev_io iread_watcher; /* ¼àÌıIPCĞ´ÊÂ¼ş */    
-    ev_timer logfile_limit_watcher; /* ÈÕÖ¾ÎÄ¼şÀÏ»¯ */ 
+    int sockfd; /* ä¸dm_apié€šä¿¡ä½¿ç”¨ */
+    struct ev_loop* loop; /* äº‹ä»¶ä¸»å¾ªç¯ */
+    ev_io iwrite_watcher; /* ç›‘å¬IPCè¯»äº‹ä»¶ */
+    ev_io iread_watcher; /* ç›‘å¬IPCå†™äº‹ä»¶ */    
+    ev_timer logfile_limit_watcher; /* æ—¥å¿—æ–‡ä»¶è€åŒ– */ 
     float logfile_cycle_period; /* unit s */
 #define DMS_DIAG_MASTER_NUM_MAX (4)    
     ydiag_master *dm[DMS_DIAG_MASTER_NUM_MAX];     
-    yuint8 txbuf[2048]; /* socket ·¢ËÍbuff */
-    yuint8 rxbuf[2048]; /* socket ½ÓÊÕbuff */
+    yuint8 txbuf[2048]; /* socket å‘é€buff */
+    yuint8 rxbuf[2048]; /* socket æ¥æ”¶buff */
 } DMS;
 
 DMS *__g_oms__ = NULL;
@@ -226,15 +226,15 @@ static int dm_sendto_api(ydiag_master *dm, unsigned char *buff, unsigned int siz
     return bytes_sent;
 }
 
-/* Í£Ö¹diag master×óÓÒµÄÊÂ¼şÑ­»·£¬Õâ½«µ¼ÖÂdiag masterÊÂ¼şÑ­»·ÍË³ö */
+/* åœæ­¢diag masterå·¦å³çš„äº‹ä»¶å¾ªç¯ï¼Œè¿™å°†å¯¼è‡´diag masteräº‹ä»¶å¾ªç¯é€€å‡º */
 static void dm_ev_stop(ydiag_master *dm)
 { 
     ev_io_stop(dm->loop, &dm->iread_watcher);
     ev_io_stop(dm->loop, &dm->iwrite_watcher);
     ev_timer_stop(dm->loop, &dm->keepalive_watcher);
 #ifndef __HAVE_DIAG_MASTER_PTHREAD__ 
-    /* ÔÚÎ´ÆôÓÃÏß³ÌµÄÇé¿öÏÂÖ±½ÓÏú»Ùdiag master */
-    /* ÔÚÆô¶¯Ïß³ÌµÄÊ±ºòËùÓĞÊÂ¼şÍË³öºó,»áÔÚÏß³ÌÄÚ×Ô¶¯Ïú»Ùdiag master */
+    /* åœ¨æœªå¯ç”¨çº¿ç¨‹çš„æƒ…å†µä¸‹ç›´æ¥é”€æ¯diag master */
+    /* åœ¨å¯åŠ¨çº¿ç¨‹çš„æ—¶å€™æ‰€æœ‰äº‹ä»¶é€€å‡ºå,ä¼šåœ¨çº¿ç¨‹å†…è‡ªåŠ¨é”€æ¯diag master */
     dm_destroy(dm);
 #endif /* __HAVE_DIAG_MASTER_PTHREAD__ */
 }
@@ -261,7 +261,7 @@ static yint32 dm_udsc_request_transfer_callback(yuint16 udscid, ydiag_master *dm
     if (yudsc_asc_record_enable(udsc)) {
         dm_uds_asc_record("TX", data, size);
     }
-    /* ÓÅÏÈÊ¹ÓÃDOIP¿Í»§¶Ë */
+    /* ä¼˜å…ˆä½¿ç”¨DOIPå®¢æˆ·ç«¯ */
     if ((doipc = yudsc_doip_channel(dm_udsc(dm, udscid)))) {
         sbytes = ydoipc_diagnostic_request(doipc, sa, ta, data, size, dm_doipc_diagnostic_response_callback, udsc);
     }
@@ -283,11 +283,11 @@ static void dm_udsc_task_end_callback(uds_client *udsc, udsc_finish_stat stat, v
     yuint32 recode = DM_ERR_NO;
 
     if (stat == UDSC_UNEXPECT_RESPONSE_FINISH) {
-        /* ·ÇÔ¤ÆÚÏìÓ¦ */
+        /* éé¢„æœŸå“åº” */
         recode = DM_ERR_UDS_RESPONSE_UNEXPECT;
     }
     else if (stat == UDSC_TIMEOUT_RESPONSE_FINISH) {
-        /* ÏìÓ¦³¬Ê± */
+        /* å“åº”è¶…æ—¶ */
         recode = DM_ERR_UDS_RESPONSE_TIMEOUT;
     }
     if (ind) {
@@ -328,18 +328,18 @@ static void dm_ipc_event_service_response_handler(ydiag_master *dm, yuint32 reco
         dm_uds_asc_record("RX", payload, payload_length);
     }
     // log_hex_d("payload: ", payload, payload_length);        
-    /* ÅĞ¶ÏÒ»ÏÂÊÇ·ñĞèÒª°ÑÏìÓ¦½á¹û·¢ËÍ¸ødiag master API´¦Àí */
+    /* åˆ¤æ–­ä¸€ä¸‹æ˜¯å¦éœ€è¦æŠŠå“åº”ç»“æœå‘é€ç»™diag master APIå¤„ç† */
     sitem = yudsc_curr_service_item(udsc);
     if (sitem && sitem->rr_callid > 0) {
         if ((payload[0] == 0x7f && payload[1] != sitem->sid) && \
             (payload[0] != (sitem->sid | UDS_REPLY_MASK))) {
-            /* ·Çµ±Ç°Õï¶Ï·şÎñÏìÓ¦Êı¾İ£¬ºöÂÔ´¦Àí */
+            /* éå½“å‰è¯Šæ–­æœåŠ¡å“åº”æ•°æ®ï¼Œå¿½ç•¥å¤„ç† */
         }
         else {
             dm_uds_service_result_event_emit(dm, udscid, payload, payload_length, sitem->rr_callid);
         }
     }
-    /* ½»ÓÉUDS¿Í»§¶Ë´¦ÀíÕï¶ÏÏìÓ¦             */
+    /* äº¤ç”±UDSå®¢æˆ·ç«¯å¤„ç†è¯Šæ–­å“åº”             */
     yudsc_service_response_finish(udsc, SERVICE_RESPONSE_NORMAL, A_SA, A_TA, payload, payload_length);
 }
 
@@ -359,7 +359,7 @@ static uds_client *dm_udsc_create(ydiag_master *dm)
                 dm->udscs[udsc_index] = udsc;
                 dm->udsc_cnt++;
                 log_i("UDSC %d create success", udsc_index);
-                return udsc; /* ´´½¨³É¹¦ */
+                return udsc; /* åˆ›å»ºæˆåŠŸ */
             }
         }
     }
@@ -399,9 +399,9 @@ static void dm_ipc_event_udsc_create_handler(ydiag_master *dm, yuint32 recode, y
     udsc_create_config config;
 
     memset(&config, 0, sizeof(config));
-    /* ÓÅÏÈÕÒµ½Ò»¸ö¿ÕÏĞµÄUDS¿Í»§¶Ë */
+    /* ä¼˜å…ˆæ‰¾åˆ°ä¸€ä¸ªç©ºé—²çš„UDSå®¢æˆ·ç«¯ */
     udsc = dm_udsc_idle_find(dm);
-    /* Ã»ÓĞÕÒµ½¿ÕÏĞµÄUDS¿Í»§¶Ë£¬´´½¨Ò»¸öĞÂµÄUDS¿Í»§¶ËÊ¹ÓÃ */
+    /* æ²¡æœ‰æ‰¾åˆ°ç©ºé—²çš„UDSå®¢æˆ·ç«¯ï¼Œåˆ›å»ºä¸€ä¸ªæ–°çš„UDSå®¢æˆ·ç«¯ä½¿ç”¨ */
     if (udsc == NULL) {    
         udsc = dm_udsc_create(dm);
     }
@@ -414,8 +414,8 @@ static void dm_ipc_event_udsc_create_handler(ydiag_master *dm, yuint32 recode, y
             yudsc_service_item_capacity_init(udsc, config.service_item_capacity);
         }
         snprintf(udsc->dm_name, sizeof(udsc->dm_name), "%s", dm->name);
-        to_id = yudsc_id(udsc); /* ½«´´½¨µÄUDS¿Í»§¶ËID·µ»Ø¸ødiag master APIÊ¹ÓÃ */
-        yudsc_idle_set(udsc, false); /* ÉèÖÃUDS¿Í»§¶ËÒÑ¾­±»Ê¹ÓÃ */ 
+        to_id = yudsc_id(udsc); /* å°†åˆ›å»ºçš„UDSå®¢æˆ·ç«¯IDè¿”å›ç»™diag master APIä½¿ç”¨ */
+        yudsc_idle_set(udsc, false); /* è®¾ç½®UDSå®¢æˆ·ç«¯å·²ç»è¢«ä½¿ç”¨ */ 
         yudsc_name_set(udsc, config.udsc_name);
         yudsc_request_transfer_callback_set(udsc, (udsc_request_transfer_callback)dm_udsc_request_transfer_callback, dm);
         yudsc_task_end_callback_set(udsc, (udsc_task_end_callback)dm_udsc_task_end_callback, dm);
@@ -426,7 +426,7 @@ static void dm_ipc_event_udsc_create_handler(ydiag_master *dm, yuint32 recode, y
     }
 
     if (to_recode != DM_ERR_NO && udsc) {
-        /* ´´½¨UDS¿Í»§¶ËÊ§°Ü */
+        /* åˆ›å»ºUDSå®¢æˆ·ç«¯å¤±è´¥ */
         log_e("udsc create failed ");        
     }
     log_d("Event type: 0x%02X(%s) Recode: %d(%s) udsc ID: %d ", \
@@ -444,13 +444,13 @@ static void dm_ipc_event_udsc_destroy_handler(ydiag_master *dm, yuint32 recode, 
     yuint16 to_id = udscid;
     doip_client_t *doipc = NULL;
 
-    /* ÊÍ·Å°ó¶¨ÔÚUDS¿Í»§¶ËÉÏµÄDOIP¿Í»§¶Ë */
+    /* é‡Šæ”¾ç»‘å®šåœ¨UDSå®¢æˆ·ç«¯ä¸Šçš„DOIPå®¢æˆ·ç«¯ */
     if ((doipc = yudsc_doip_channel(dm_udsc(dm, udscid)))) {
         yudsc_doip_channel_unbind(dm_udsc(dm, udscid));
         ydoipc_destroy(doipc);
     }
 
-    /* ²¢²»ÊÍ·ÅUDS¿Í»§¶Ë£¬Ö»ÊÇ°ÑUDS¿Í»§¶ËÉèÖÃÎª¿ÕÏĞ£¬¼õÉÙ·´¸´µÄYX_MALLOCºÍfree */
+    /* å¹¶ä¸é‡Šæ”¾UDSå®¢æˆ·ç«¯ï¼Œåªæ˜¯æŠŠUDSå®¢æˆ·ç«¯è®¾ç½®ä¸ºç©ºé—²ï¼Œå‡å°‘åå¤çš„mallocå’Œfree */
     yudsc_reset(dm_udsc(dm, udscid));
     
     log_d("Event type: 0x%02X(%s) Recode: %d(%s) udsc ID: %d", \
@@ -560,7 +560,7 @@ static void dm_ipc_event_service_config_handler(ydiag_master *dm, yuint32 recode
         si->tatype = sconfig.tatype;
         si->issuppress = sconfig.issuppress;
         if (si->issuppress == false) {
-            /* ¼æÈİÒ»ÏÂÒÖÖÆÏìÓ¦±ê¼ÇÔÚ×Ó¹¦ÄÜÄÚµÄÇé¿ö */
+            /* å…¼å®¹ä¸€ä¸‹æŠ‘åˆ¶å“åº”æ ‡è®°åœ¨å­åŠŸèƒ½å†…çš„æƒ…å†µ */
             si->issuppress = sconfig.sub & UDS_SUPPRESS_POS_RSP_MSG_IND_MASK ? true : false;
         }
         si->rr_callid = sconfig.rr_callid;
@@ -572,7 +572,7 @@ static void dm_ipc_event_service_config_handler(ydiag_master *dm, yuint32 recode
             si->rd_34.memory_size = sconfig.service_34_rd.memory_size;            
         }
         else if (si->sid == UDS_SERVICES_RFT) {
-            /* 38·şÎñÊÇ¿ÉÑ¡Êı¾İ£¬ÕâÀï¶¯Ì¬ÉêÇëÒ»ÏÂÄÚ´æ */
+            /* 38æœåŠ¡æ˜¯å¯é€‰æ•°æ®ï¼Œè¿™é‡ŒåŠ¨æ€ç”³è¯·ä¸€ä¸‹å†…å­˜ */
             if (si->rft_38 == NULL) {
                 si->rft_38 = ycalloc(sizeof(*si->rft_38), 1);
                 if (si->rft_38 == NULL) {            
@@ -632,9 +632,9 @@ static void dm_ipc_event_runtime_config_handler(ydiag_master *dm, yuint32 recode
 
     memset(&gconfig, 0, sizeof(gconfig));
     ydm_general_config_decode(dp, strlen((const char *)dp), &gconfig); 
-    /* ÉèÖÃÊÇ·ñÕï¶Ï·şÎñÖ´ĞĞ³öÏÖ·ÇÔ¤ÆÚ½á¹û¾ÍÖĞÖ¹UDS¿Í»§¶ËÖ´ĞĞ */
+    /* è®¾ç½®æ˜¯å¦è¯Šæ–­æœåŠ¡æ‰§è¡Œå‡ºç°éé¢„æœŸç»“æœå°±ä¸­æ­¢UDSå®¢æˆ·ç«¯æ‰§è¡Œ */
     yudsc_fail_abort(udsc, gconfig.isFailAbort);
-    /* ÉèÖÃ3E±¨ÎÄµÄ·¢ËÍÂß¼­ */
+    /* è®¾ç½®3EæŠ¥æ–‡çš„å‘é€é€»è¾‘ */
     yudsc_tester_present_config(udsc, gconfig.tester_present_enable, gconfig.is_tester_present_refresh, gconfig.tester_present_interval, gconfig.tester_present_ta, gconfig.tester_present_sa);
     /*  */
     yudsc_td_36_progress_interval_set(udsc, gconfig.td_36_notify_interval);
@@ -651,7 +651,7 @@ static void dm_ipc_event_runtime_config_handler(ydiag_master *dm, yuint32 recode
     return ;
 }
 
-/* ½ÓÊÕapiµÄkey¼ÆËã½á¹û */
+/* æ¥æ”¶apiçš„keyè®¡ç®—ç»“æœ */
 static void dm_ipc_event_sa_key_handler(ydiag_master *dm, yuint32 recode, yuint16 udscid)
 {
     uds_client *udsc = NULL;
@@ -667,20 +667,20 @@ static void dm_ipc_event_sa_key_handler(ydiag_master *dm, yuint32 recode, yuint1
     ydm_common_encode(DM_TX_BUFF(dm), evtype, to_recode, to_id, IPC_USE_USER_TIME_STAMP);
     dm_sendto_api(dm, dm_txbuf(dm), DM_IPC_EVENT_MSG_SIZE);
 
-    /* »ñÈ¡ÓÉapi¼ÆËãµÃµ½µÄkey */
+    /* è·å–ç”±apiè®¡ç®—å¾—åˆ°çš„key */
     level = TYPE_CAST_UCHAR(pointer_offset_nbyte(dm_rxbuf(dm), SERVICE_SA_KEY_LEVEL_OFFSET));
     key_size = TYPE_CAST_USHORT(pointer_offset_nbyte(dm_rxbuf(dm), SERVICE_SA_KEY_SIZE_OFFSET));
     key = pointer_offset_nbyte(dm_rxbuf(dm), SERVICE_SA_KEY_OFFSET); 
     log_d("Security access level %02x", level);
     log_hex_d("UDS Request key", key, key_size);
     udsc = dm_udsc(dm, udscid);
-    /* key½»ÓÉuds clientÊ¹ÓÃ */
+    /* keyäº¤ç”±uds clientä½¿ç”¨ */
     yudsc_security_access_key_set(udsc, key, key_size);
 
     return ;
 }
 
-/* ÔÚÖ¸¶¨µÄuds client¿Í»§¶ËÉÏ´´½¨Ò»¸ödoip¿Í»§¶Ë */
+/* åœ¨æŒ‡å®šçš„uds clientå®¢æˆ·ç«¯ä¸Šåˆ›å»ºä¸€ä¸ªdoipå®¢æˆ·ç«¯ */
 static void dm_ipc_event_doipc_create_handler(ydiag_master *dm, yuint32 recode, yuint16 udscid)
 {
     yuint32 evtype = DM_EVENT_DOIP_CLIENT_CREATE_ACCEPT;
@@ -695,19 +695,19 @@ static void dm_ipc_event_doipc_create_handler(ydiag_master *dm, yuint32 recode, 
  
     ydm_doipc_create_config_decode(pointer_offset_nbyte(dm_rxbuf(dm), DM_IPC_EVENT_MSG_SIZE), \
         dm_rxbuf_size(dm) - DM_IPC_EVENT_MSG_SIZE, &config);
-    /* ÅĞ¶ÏÒ»ÏÂ¸ÃUDS¿Í»§¶ËÊÇ·ñÒÑ¾­´´½¨¹ıdoip¿Í»§¶Ë */
+    /* åˆ¤æ–­ä¸€ä¸‹è¯¥UDSå®¢æˆ·ç«¯æ˜¯å¦å·²ç»åˆ›å»ºè¿‡doipå®¢æˆ·ç«¯ */
     doipc = yudsc_doip_channel(udsc);
     if (doipc == NULL) {
-        /* ´´½¨Ò»¸öĞÂµÄDOIP¿Í»§¶Ë */
+        /* åˆ›å»ºä¸€ä¸ªæ–°çš„DOIPå®¢æˆ·ç«¯ */
         doipc = ydoipc_create(ydiag_master_ev_loop(dm));
     }
-    /* doip¿Í»§¶Ë´´½¨³É¹¦ */
+    /* doipå®¢æˆ·ç«¯åˆ›å»ºæˆåŠŸ */
     if (doipc) {
         memappend(pointer_offset_nbyte(dm_txbuf(dm), DOIPC_CREATE_DOIP_CLIENT_ID_OFFSET), \
             &doipc_index, DOIPC_CREATE_DOIP_CLIENT_ID_SIZE);
-        /* UDS¿Í»§¶ËºÍDOIP¿Í»§¶Ë°ó¶¨ */
+        /* UDSå®¢æˆ·ç«¯å’ŒDOIPå®¢æˆ·ç«¯ç»‘å®š */
         yudsc_doip_channel_bind(udsc, doipc);
-        /* Ö±½ÓÁ¬½Ó doip server */
+        /* ç›´æ¥è¿æ¥ doip server */
         ydoipc_connect_active_server(doipc, &config);
     }
     else {
@@ -721,7 +721,7 @@ static void dm_ipc_event_doipc_create_handler(ydiag_master *dm, yuint32 recode, 
     return ;
 }
 
-/* masterÏìÓ¦uds clientÔËĞĞĞÔÄÜ²ÎÊıÍ³¼Æ£¬ĞèÒªÔÚ´´½¨uds clientÊ±Ê¹ÄÜ¸Ã¹¦ÄÜÊÇ²ÅÄÜ»ñÈ¡µ½ */
+/* masterå“åº”uds clientè¿è¡Œæ€§èƒ½å‚æ•°ç»Ÿè®¡ï¼Œéœ€è¦åœ¨åˆ›å»ºuds clientæ—¶ä½¿èƒ½è¯¥åŠŸèƒ½æ˜¯æ‰èƒ½è·å–åˆ° */
 static void dm_ipc_event_udsc_rundata_statis_handler(ydiag_master *dm, yuint32 recode, yuint16 udscid)
 {
     yuint32 evtype = DM_EVENT_UDS_CLIENT_RUNTIME_DATA_STATIS_ACCEPT;
@@ -749,7 +749,7 @@ static void dm_ipc_event_udsc_rundata_statis_handler(ydiag_master *dm, yuint32 r
     return ;
 }
 
-/* masterÏìÓ¦Ö¸¶¨µÄuds clientÊÇ·ñÊÇÔÚÖ´ĞĞÈÎÎñÖĞ */
+/* masterå“åº”æŒ‡å®šçš„uds clientæ˜¯å¦æ˜¯åœ¨æ‰§è¡Œä»»åŠ¡ä¸­ */
 static void dm_ipc_event_check_udsc_active_handler(ydiag_master *dm, yuint32 recode, yuint16 udscid)
 {
     yuint32 evtype = DM_EVENT_UDS_CLIENT_ACTIVE_CHECK_ACCEPT;
@@ -771,7 +771,7 @@ static void dm_ipc_event_check_udsc_active_handler(ydiag_master *dm, yuint32 rec
     return ;
 }
 
-/* masterÏìÓ¦×ÔÉíÊÇ»îÔ¾µÄ */
+/* masterå“åº”è‡ªèº«æ˜¯æ´»è·ƒçš„ */
 static void dm_ipc_event_check_api_valid_handler(ydiag_master *dm, yuint32 recode, yuint16 udscid)
 {
     yuint32 evtype = DM_EVENT_OMAPI_CHECK_VALID_ACCEPT;
@@ -808,7 +808,7 @@ static int dm_terminal_control_service_add(ydiag_master *dm, terminal_control_se
     terminal_control_service_info_t tcsinfo;
 
     memset(&tcsinfo, 0, sizeof(tcsinfo));
-    /* ²éÕÒÊÇ·ñ»¹ÄÜ´´½¨ĞÂµÄÖÕ¶Ë¿ØÖÆ·şÎñ */
+    /* æŸ¥æ‰¾æ˜¯å¦è¿˜èƒ½åˆ›å»ºæ–°çš„ç»ˆç«¯æ§åˆ¶æœåŠ¡ */
     for (trindex = 0; trindex < TERMINAL_REMOTE_CAPACITY_MAX; trindex++) {
         if (dm->tcss[trindex] == NULL) {
             tcsid = trindex;
@@ -838,39 +838,39 @@ static void dm_ipc_event_terminal_control_service_create_handler(ydiag_master *d
     yuint16 to_id = udscid;
     terminal_control_service_info_t tcsinfo;
     yuint32 tcsid = 0;
-    terminal_control_service_t *tcs = NULL; /* ´´½¨Ò»¸öĞÂµÄÖÕ¶Ë¿ØÖÆ·şÎñ */
+    terminal_control_service_t *tcs = NULL; /* åˆ›å»ºä¸€ä¸ªæ–°çš„ç»ˆç«¯æ§åˆ¶æœåŠ¡ */
 
     memset(&tcsinfo, 0, sizeof(tcsinfo));
     ydm_terminal_control_service_info_decode(pointer_offset_nbyte(dm_rxbuf(dm), DM_IPC_EVENT_MSG_SIZE), \
         dm_rxbuf_size(dm) - DM_IPC_EVENT_MSG_SIZE, &tcsinfo);
     if (dm_terminal_control_service_find(dm, &tcsinfo) >= 0) {
-        /* ¸ÃÖÕ¶Ë¿ØÖÆ·şÎñÒÑ¾­´æÔÚ */
+        /* è¯¥ç»ˆç«¯æ§åˆ¶æœåŠ¡å·²ç»å­˜åœ¨ */
         to_recode = DM_ERR_TCS_EXIST;
         log_w("The terminal control service already exists");
     }
     else {
-        /* ´´½¨ĞÂµÄÖÕ¶Ë¿ØÖÆ·şÎñ */
+        /* åˆ›å»ºæ–°çš„ç»ˆç«¯æ§åˆ¶æœåŠ¡ */
         tcs = yterminal_control_service_create(dm->loop);
     }
-    /* ĞÂµÄ */
+    /* æ–°çš„ */
     if (tcs) {
-        /* ÉèÖÃÅäÖÃ */
+        /* è®¾ç½®é…ç½® */
         yterminal_control_service_info_set(tcs, &tcsinfo);
-        /* ±£´æÒ»ÏÂĞÂ´´½¨µÄÖÕ¶Ë¿ØÖÆ·şÎñ */
+        /* ä¿å­˜ä¸€ä¸‹æ–°åˆ›å»ºçš„ç»ˆç«¯æ§åˆ¶æœåŠ¡ */
         tcsid = dm_terminal_control_service_add(dm, tcs);
         if (!TCS_IS_VALID(tcsid)) {
-            /* ÖÕ¶Ë¿ØÖÆ·şÎñÌí¼ÓÊ§°Ü */
+            /* ç»ˆç«¯æ§åˆ¶æœåŠ¡æ·»åŠ å¤±è´¥ */
             yterminal_control_service_destroy(tcs);              
             to_recode = DM_ERR_TCS_OUT_NUM_MAX;        
             log_w("The terminal control service exceeds the upper limit");
         }
         else {
-            /* ·şÎñ´´½¨³É¹¦¿ªÊ¼Ö´ĞĞÁ¬½ÓÆ½Ì¨²Ù×÷ */
+            /* æœåŠ¡åˆ›å»ºæˆåŠŸå¼€å§‹æ‰§è¡Œè¿æ¥å¹³å°æ“ä½œ */
             yterminal_control_service_connect(tcs);
         }        
     }
     else {
-        /* ´´½¨Ê§°Ü */
+        /* åˆ›å»ºå¤±è´¥ */
         to_recode = DM_ERR_TCS_CREATE_FAILED;
         log_e("The terminal control service fails to be created");
     }
@@ -897,12 +897,12 @@ static void dm_ipc_event_terminal_control_service_destroy_handler(ydiag_master *
     tcsid = TYPE_CAST_UINT(pointer_offset_nbyte(dm_rxbuf(dm), TERMINAL_CONTROL_SERVICE_ID_OFFSET));
     log_d("Terminal control service destroy => %d", tcsid);
     if (TCS_IS_VALID(tcsid)) {
-        /* id¾ÍÊÇÊı×éË÷ÒıÖ±½ÓÕÒµ½ */
+        /* idå°±æ˜¯æ•°ç»„ç´¢å¼•ç›´æ¥æ‰¾åˆ° */
         tcs = dm->tcss[tcsid];
         if (tcs) {
-            /* Ïú»Ù·şÎñ */
+            /* é”€æ¯æœåŠ¡ */
             yterminal_control_service_destroy(tcs); 
-            /* É¾³ı´æÁô */
+            /* åˆ é™¤å­˜ç•™ */
             dm_terminal_control_service_del(dm, tcsid);
         }
         else {
@@ -927,7 +927,7 @@ static void dm_ipc_event_instance_destroy_handler(ydiag_master *dm, yuint32 reco
     dm_ev_stop(dm);     
 }
 
-/* ·¢ËÍĞÄÌøĞÅÏ¢¸øapiÓÃÓÚÈ·ÈÏapiÊÇ·ñ»¹ÔÚÊ¹ÓÃÖĞ£¬·ÀÖ¹Ê§Ğ§µÄapiÕ¼ÓÃ×ÊÔ´ */
+/* å‘é€å¿ƒè·³ä¿¡æ¯ç»™apiç”¨äºç¡®è®¤apiæ˜¯å¦è¿˜åœ¨ä½¿ç”¨ä¸­ï¼Œé˜²æ­¢å¤±æ•ˆçš„apiå ç”¨èµ„æº */
 int dm_keepalive_event_emit(ydiag_master *dm)
 {
     yuint32 evtype = DM_EVENT_OMAPI_KEEPALIVE_EMIT;
@@ -970,13 +970,13 @@ static void dm_ev_io_dm_ipc_read(struct ev_loop* loop, ev_io* w, int e)
     if (recvByte > 0) {
         dm->dms->logfile_cycle_period = 60.0;
         dm_logfile_limit_cycle_period_refresh(dm->dms);
-        /* Ë¢ĞÂĞÄÌø¶¨Ê±Æ÷ */
+        /* åˆ·æ–°å¿ƒè·³å®šæ—¶å™¨ */
         dm_keepalive_refresh(dm);
         ydm_common_decode(DM_RX_BUFF(dm), &evtype, &recode, &udscid, &tv_sec, &tv_usec);
         if (DM_EVENT_ACCEPT_MASK & evtype) {
-            /* Ö»´¦ÀíÇëÇóÏûÏ¢£¬Ó¦´ğÏûÏ¢Ö±½ÓºöÂÔ */
+            /* åªå¤„ç†è¯·æ±‚æ¶ˆæ¯ï¼Œåº”ç­”æ¶ˆæ¯ç›´æ¥å¿½ç•¥ */
             if (evtype == DM_EVENT_OMAPI_KEEPALIVE_ACCEPT) {
-                /* ½ÓÊÕµ½ĞÄÌøÏìÓ¦£¬Ë¢Ğ´ĞÄÌø¼ÆÊıÆ÷ */
+                /* æ¥æ”¶åˆ°å¿ƒè·³å“åº”ï¼Œåˆ·å†™å¿ƒè·³è®¡æ•°å™¨ */
                 dm->keepalive_cnt = 0;
             }
             return ;
@@ -988,7 +988,7 @@ static void dm_ev_io_dm_ipc_read(struct ev_loop* loop, ev_io* w, int e)
             evtype != DM_EVENT_TERMINAL_CONTROL_SERVICE_CREATE_EMIT && \
             evtype != DM_EVENT_TERMINAL_CONTROL_SERVICE_DESTORY_EMIT && \
             evtype != DM_EVENT_INSTANCE_DESTORY_EMIT) {
-            /* ĞèÒªÓÃµ½uds¿Í»§¶ËIDµÄÃüÁîÊÂÏÈÅĞ¶ÏIDÊÇ·ñÓĞĞ§ */
+            /* éœ€è¦ç”¨åˆ°udså®¢æˆ·ç«¯IDçš„å‘½ä»¤äº‹å…ˆåˆ¤æ–­IDæ˜¯å¦æœ‰æ•ˆ */
             uds_client *udsc = dm_udsc(dm, udscid);
             if (udsc == NULL) {
                 log_w("The udsc id is invalid => %d", udscid);
@@ -1010,10 +1010,10 @@ static void dm_ev_io_dm_ipc_read(struct ev_loop* loop, ev_io* w, int e)
         }
 
         if (ydm_common_is_system_time_stamp(tv_sec, tv_usec)) {
-            /* Ê¹ÓÃÏµÍ³Ê±¼ä´ÁµÄÏûÏ¢ĞèÒªÅĞ¶ÏÏûÏ¢ÓĞĞ§ĞĞ */
+            /* ä½¿ç”¨ç³»ç»Ÿæ—¶é—´æˆ³çš„æ¶ˆæ¯éœ€è¦åˆ¤æ–­æ¶ˆæ¯æœ‰æ•ˆè¡Œ */
             if (dm->premsg_tv_sec == tv_sec && \
                 dm->premsg_tv_usec == tv_usec) {
-                /* ÏûÏ¢È¥ÖØ£¬·ÀÖ¹ÖØ·¢ÏûÏ¢¶à´ÎÖ´ĞĞ */
+                /* æ¶ˆæ¯å»é‡ï¼Œé˜²æ­¢é‡å‘æ¶ˆæ¯å¤šæ¬¡æ‰§è¡Œ */
                 return ;
             }
 
@@ -1032,8 +1032,8 @@ static void dm_ev_io_dm_ipc_read(struct ev_loop* loop, ev_io* w, int e)
         if (IPC_CMD_IS_VALID(evtype & (~DM_EVENT_ACCEPT_MASK)) && \
             dm->event_calls[evtype].call) {
             if (ydm_common_is_system_time_stamp(tv_sec, tv_usec)) {
-                dm->premsg_tv_sec = tv_sec; /* ¼ÇÂ¼³É¹¦Ö´ĞĞÊÂ¼şµÄÊ±¼ä´Á */
-                dm->premsg_tv_usec = tv_usec; /* ¼ÇÂ¼³É¹¦Ö´ĞĞÊÂ¼şµÄÊ±¼ä´Á */
+                dm->premsg_tv_sec = tv_sec; /* è®°å½•æˆåŠŸæ‰§è¡Œäº‹ä»¶çš„æ—¶é—´æˆ³ */
+                dm->premsg_tv_usec = tv_usec; /* è®°å½•æˆåŠŸæ‰§è¡Œäº‹ä»¶çš„æ—¶é—´æˆ³ */
             }
             dm->event_calls[evtype].call(dm, recode, udscid);
         }
@@ -1054,7 +1054,7 @@ REPLY:
     return ;    
 }
 
-/* ÔİÊ±²»ÔÙÊ¹ÓÃÕâ¸öº¯Êı */
+/* æš‚æ—¶ä¸å†ä½¿ç”¨è¿™ä¸ªå‡½æ•° */
 static int dm_ipc_create(struct sockaddr_un *un)
 {
     int handle = -1;
@@ -1085,7 +1085,7 @@ CREATE_FALIED:
     return -1;
 }
 /*
-    UDSÇëÇó·¢ËÍ¸ødiag master api£¬ÓÉdiag master api¸ºÔğ°ÑUDSÇëÇó·¢ËÍ¸øÆäËûECU
+    UDSè¯·æ±‚å‘é€ç»™diag master apiï¼Œç”±diag master apiè´Ÿè´£æŠŠUDSè¯·æ±‚å‘é€ç»™å…¶ä»–ECU
 */
 static int dm_uds_service_request_event_emit(ydiag_master *dm, yuint16 udscid, const yuint8 *data, yuint32 size, yuint32 sa, yuint32 ta, yuint32 tatype)
 {
@@ -1099,15 +1099,15 @@ static int dm_uds_service_request_event_emit(ydiag_master *dm, yuint16 udscid, c
         return -1;
     }
 
-    /* encode 4byte UDSÇëÇóÔ´µØÖ· */
+    /* encode 4byte UDSè¯·æ±‚æºåœ°å€ */
     memappend(pointer_offset_nbyte(dp, SERVICE_INDICATION_A_SA_OFFSET), &sa, SERVICE_INDICATION_A_SA_SIZE);    
-    /* encode 4byte UDSÇëÇóÄ¿µÄµØÖ· */
+    /* encode 4byte UDSè¯·æ±‚ç›®çš„åœ°å€ */
     memappend(pointer_offset_nbyte(dp, SERVICE_INDICATION_A_TA_OFFSET), &ta, SERVICE_INDICATION_A_TA_SIZE);    
-    /* encode 4byte UDSÇëÇóÄ¿µÄµØÖ·ÀàĞÍ */
+    /* encode 4byte UDSè¯·æ±‚ç›®çš„åœ°å€ç±»å‹ */
     memappend(pointer_offset_nbyte(dp, SERVICE_INDICATION_TA_TYPE_OFFSET), &tatype, SERVICE_INDICATION_TA_TYPE_SIZE);    
-    /* encode 4byte UDSÇëÇó±¨ÎÄ³¤¶È */
+    /* encode 4byte UDSè¯·æ±‚æŠ¥æ–‡é•¿åº¦ */
     memappend(pointer_offset_nbyte(dp, SERVICE_INDICATION_PAYLOAD_LEN_OFFSET), &size, SERVICE_INDICATION_PAYLOAD_LEN_SIZE);    
-    /* encode nbyte UDSÇëÇó±¨ÎÄ */
+    /* encode nbyte UDSè¯·æ±‚æŠ¥æ–‡ */
     memappend(pointer_offset_nbyte(dp, SERVICE_INDICATION_PAYLOAD_OFFSET), data, size);
     ydm_common_encode(DM_TX_BUFF(dm), evtype, recode, udscid, IPC_USE_USER_TIME_STAMP);
     dm_event_emit_to_api(dm, dm_txbuf(dm), sl);
@@ -1116,8 +1116,8 @@ static int dm_uds_service_request_event_emit(ydiag_master *dm, yuint16 udscid, c
 }
 
 /*
-    ËùÓĞµÄUDS·şÎñ´¦Àí½áÊø»òÕßÒòÒì³£ÖĞ¶ÏÖ´ĞĞUDS·şÎñºó£¬½«½á¹û·¢ËÍ¸ødiag master api´¦Àí£¬
-    ½á¹û°üº¬×îºóÒ»´ÎUDS·şÎñÇëÇóºÍÓ¦´ğÊı¾İ
+    æ‰€æœ‰çš„UDSæœåŠ¡å¤„ç†ç»“æŸæˆ–è€…å› å¼‚å¸¸ä¸­æ–­æ‰§è¡ŒUDSæœåŠ¡åï¼Œå°†ç»“æœå‘é€ç»™diag master apiå¤„ç†ï¼Œ
+    ç»“æœåŒ…å«æœ€åä¸€æ¬¡UDSæœåŠ¡è¯·æ±‚å’Œåº”ç­”æ•°æ®
 */
 static int dm_uds_client_result_event_emit(ydiag_master *dm, yuint16 udscid, yuint32 result, const yuint8 *ind, yuint32 indl, const yuint8 *resp, yuint32 respl)
 {
@@ -1131,45 +1131,45 @@ static int dm_uds_client_result_event_emit(ydiag_master *dm, yuint16 udscid, yui
         log_e("The length of the ipc send cache is insufficient. The expected length is %d, but the actual length is %d", sl, dm_txbuf_size(dm));
         return -1;
     }
-    /* encode 4 byte ÇëÇóÊı¾İ³¤¶È */
+    /* encode 4 byte è¯·æ±‚æ•°æ®é•¿åº¦ */
     memappend(pointer_offset_nbyte(dm_txbuf(dm), SERVICE_FINISH_RESULT_IND_LEN_OFFSET), &indl, SERVICE_FINISH_RESULT_IND_LEN_SIZE);
-    /* encode n byte ÇëÇóÊı¾İ */
+    /* encode n byte è¯·æ±‚æ•°æ® */
     memappend(pointer_offset_nbyte(dm_txbuf(dm), SERVICE_FINISH_RESULT_IND_OFFSET), ind, indl);
-    /* encode 4 byte Ó¦´ğÊı¾İ³¤¶È */
+    /* encode 4 byte åº”ç­”æ•°æ®é•¿åº¦ */
     memappend(pointer_offset_nbyte(dm_txbuf(dm), SERVICE_FINISH_RESULT_IND_OFFSET + indl), &respl, SERVICE_FINISH_RESULT_RESP_LEN_SIZE);    
-    /* encode n byte Ó¦´ğÊı¾İ */
+    /* encode n byte åº”ç­”æ•°æ® */
     memappend(pointer_offset_nbyte(dm_txbuf(dm), SERVICE_FINISH_RESULT_IND_OFFSET + indl + SERVICE_FINISH_RESULT_RESP_LEN_SIZE), resp, respl);
-    /* encode Í¨ÓÃµÄÍ·²¿¹Ì¶¨Êı¾İ */
+    /* encode é€šç”¨çš„å¤´éƒ¨å›ºå®šæ•°æ® */
     ydm_common_encode(DM_TX_BUFF(dm), evtype, recode, udscid, IPC_USE_USER_TIME_STAMP);
-    /* ·¢ËÍ¸ødiag master api */
+    /* å‘é€ç»™diag master api */
     dm_event_emit_to_api(dm, dm_txbuf(dm), sl);
 
     return 0;
 }
 
 /* 
-   Èç¹ûdiag master api×¢²áÁËUDS·şÎñ½á¹û´¦Àíº¯Êı£¬
-   diag master ½«UDS·şÎñµÄÓ¦´ğÊı¾İ£¬·¢ËÍ¸ø diag master api ´¦Àí 
+   å¦‚æœdiag master apiæ³¨å†Œäº†UDSæœåŠ¡ç»“æœå¤„ç†å‡½æ•°ï¼Œ
+   diag master å°†UDSæœåŠ¡çš„åº”ç­”æ•°æ®ï¼Œå‘é€ç»™ diag master api å¤„ç† 
 */
 static int dm_uds_service_result_event_emit(ydiag_master *dm, yuint16 udscid, const yuint8 *data, yuint32 size, yuint32 rr_callid)
 {
     yuint32 evtype = DM_EVENT_UDS_SERVICE_RESULT_EMIT;
     yuint32 recode = DM_ERR_NO;
 
-    /* ·ÀÖ¹Êı¾İ¹ı³¤Ô½½ç¶ÁĞ´buff */
+    /* é˜²æ­¢æ•°æ®è¿‡é•¿è¶Šç•Œè¯»å†™buff */
     if (size > dm_txbuf_size(dm) - SERVICE_REQUEST_RESULT_SIZE - DM_IPC_EVENT_MSG_SIZE) {
         size = dm_txbuf_size(dm) - SERVICE_REQUEST_RESULT_SIZE - DM_IPC_EVENT_MSG_SIZE;
-        recode = DM_ERR_UDS_RESPONSE_OVERLEN; /* ´íÎóÂë */
+        recode = DM_ERR_UDS_RESPONSE_OVERLEN; /* é”™è¯¯ç  */
     }
-    /* encode 4 byte diag master api¹ÜÀíµÄÕï¶Ï½á¹û´¦Àí»Øµ÷º¯ÊıID */
+    /* encode 4 byte diag master apiç®¡ç†çš„è¯Šæ–­ç»“æœå¤„ç†å›è°ƒå‡½æ•°ID */
     memappend(pointer_offset_nbyte(dm_txbuf(dm), SERVICE_REQUEST_RESULT_RR_CALLID_OFFSET), &rr_callid, SERVICE_REQUEST_RESULT_RR_CALLID_SIZE);    
-    /* encode 4 byte Õï¶Ï½á¹ûÊı¾İ³¤¶È */
+    /* encode 4 byte è¯Šæ–­ç»“æœæ•°æ®é•¿åº¦ */
     memappend(pointer_offset_nbyte(dm_txbuf(dm), SERVICE_REQUEST_RESULT_DATA_LEN_OFFSET), &size, SERVICE_REQUEST_RESULT_DATA_LEN_SIZE);    
-    /* encode n byte Õï¶Ï½á¹ûÊı¾İ */
+    /* encode n byte è¯Šæ–­ç»“æœæ•°æ® */
     memappend(pointer_offset_nbyte(dm_txbuf(dm), SERVICE_REQUEST_RESULT_DATA_OFFSET), data, size);
     yuint8 *payload = pointer_offset_nbyte(dm_txbuf(dm), SERVICE_REQUEST_RESULT_DATA_OFFSET);
     log_hex_d("UDS Request result: ", payload, size);    
-    /* encode Í¨ÓÃµÄÍ·²¿¹Ì¶¨Êı¾İ */
+    /* encode é€šç”¨çš„å¤´éƒ¨å›ºå®šæ•°æ® */
     ydm_common_encode(DM_TX_BUFF(dm), evtype, recode, udscid, IPC_USE_USER_TIME_STAMP);
     dm_event_emit_to_api(dm, dm_txbuf(dm), DM_IPC_EVENT_MSG_SIZE + SERVICE_REQUEST_RESULT_SIZE + size);
 
@@ -1189,12 +1189,12 @@ static int dm_uds_service_27_sa_seed_event_emit(ydiag_master *dm, yuint16 udscid
 
     /* encode 1 byte level */
     memappend(pointer_offset_nbyte(dm_txbuf(dm), SERVICE_SA_SEED_LEVEL_OFFSET), &level, SERVICE_SA_SEED_LEVEL_SIZE);    
-    /* encode 2 byte ÖÖ×Ó³¤¶È */
+    /* encode 2 byte ç§å­é•¿åº¦ */
     memappend(pointer_offset_nbyte(dm_txbuf(dm), SERVICE_SA_SEED_SIZE_OFFSET), &size, SERVICE_SA_SEED_SIZE_SIZE);    
-    /* encode n byte ÖÖ×ÓÊı¾İ */
+    /* encode n byte ç§å­æ•°æ® */
     memappend(pointer_offset_nbyte(dm_txbuf(dm), SERVICE_SA_SEED_OFFSET), data, size);    
     log_hex_d("UDS Request seed: ", data, size);    
-    /* encode Í¨ÓÃµÄÍ·²¿¹Ì¶¨Êı¾İ */
+    /* encode é€šç”¨çš„å¤´éƒ¨å›ºå®šæ•°æ® */
     ydm_common_encode(DM_TX_BUFF(dm), evtype, recode, udscid, IPC_USE_USER_TIME_STAMP);
     dm_event_emit_to_api(dm, dm_txbuf(dm), sl);
 
@@ -1216,7 +1216,7 @@ static int dm_uds_service_36_transfer_progress_event_emit(ydiag_master *dm, yuin
     memappend(pointer_offset_nbyte(dm_txbuf(dm), IPC_36_TRANSFER_FILE_SIZE_OFFSET), &file_size, IPC_36_TRANSFER_FILE_SIZE_SIZE);    
     memappend(pointer_offset_nbyte(dm_txbuf(dm), IPC_36_TRANSFER_TOTAL_BYTE_OFFSET), &total_byte, IPC_36_TRANSFER_TOTAL_BYTE_SIZE);    
     memappend(pointer_offset_nbyte(dm_txbuf(dm), IPC_36_TRANSFER_ELAPSED_TIME_OFFSET), &elapsed_time, IPC_36_TRANSFER_ELAPSED_TIME_SIZE);    
-    /* encode Í¨ÓÃµÄÍ·²¿¹Ì¶¨Êı¾İ */
+    /* encode é€šç”¨çš„å¤´éƒ¨å›ºå®šæ•°æ® */
     ydm_common_encode(DM_TX_BUFF(dm), evtype, recode, udscid, IPC_USE_USER_TIME_STAMP);
     dm_event_emit_to_api(dm, dm_txbuf(dm), sl);
 
@@ -1225,7 +1225,7 @@ static int dm_uds_service_36_transfer_progress_event_emit(ydiag_master *dm, yuin
 
 static int dm_instance_destroy_event_emit(ydiag_master *dm)
 {
-    /* encode Í¨ÓÃµÄÍ·²¿¹Ì¶¨Êı¾İ */
+    /* encode é€šç”¨çš„å¤´éƒ¨å›ºå®šæ•°æ® */
     ydm_common_encode(DM_TX_BUFF(dm), DM_EVENT_INSTANCE_DESTORY_EMIT, 0, 0, IPC_USE_USER_TIME_STAMP);
     dm_event_emit_to_api(dm, dm_txbuf(dm), DM_IPC_EVENT_MSG_SIZE);
 
@@ -1251,15 +1251,15 @@ ydiag_master *dm_create(DMS *dms, const char *dm_path, const char *dmapi_path)
     dm->index = -1;
     dm->sockfd = -1;
 #ifdef __HAVE_DIAG_MASTER_PTHREAD__
-    /* ÆôÓÃÏß³ÌºóĞèÒª´´½¨ĞÂµÄÊÂ¼şÑ­»·loop */
+    /* å¯ç”¨çº¿ç¨‹åéœ€è¦åˆ›å»ºæ–°çš„äº‹ä»¶å¾ªç¯loop */
     dm->loop = ev_loop_new(0);
     if (dm->loop == NULL) {
         log_e("new event loop failed ");
         goto CREAT_FAILED;
     }
 #else /* __HAVE_DIAG_MASTER_PTHREAD__ */
-    /* diag master ²»Ê¹ÓÃÏß³Ì½øĞĞÊÂ¼şÑ­»· */
-    /* ¹²ÓÃÒ»¸öÊÂ¼şÑ­»·loop */
+    /* diag master ä¸ä½¿ç”¨çº¿ç¨‹è¿›è¡Œäº‹ä»¶å¾ªç¯ */
+    /* å…±ç”¨ä¸€ä¸ªäº‹ä»¶å¾ªç¯loop */
     dm->loop = dms->loop;
 #endif /* __HAVE_DIAG_MASTER_PTHREAD__ */
     dm->event_valid_time = IPC_MSG_VALID_TIME;
@@ -1274,28 +1274,28 @@ ydiag_master *dm_create(DMS *dms, const char *dm_path, const char *dmapi_path)
         log_e("fatal error yom_ipc_channel_create failed");
         goto CREAT_FAILED;
     }
-    /* ±£´ædiag masterµÄunix socketµÄÂ·¾¶ */
+    /* ä¿å­˜diag masterçš„unix socketçš„è·¯å¾„ */
     snprintf(dm->dm_path, sizeof(dm->dm_path), "%s", dm_path);
 
-    /* ±£´ædiag master apiµÄunix socketµÄÂ·¾¶ */
+    /* ä¿å­˜diag master apiçš„unix socketçš„è·¯å¾„ */
     snprintf(dm->dmapi_event_emit_path, sizeof(dm->dmapi_event_emit_path), "%s", dmapi_path);
 #ifdef __HAVE_DIAG_MASTER_PTHREAD__   
-    /* ´«ÈëÓÃ»§Êı¾İÖ¸Õë, ±ãÓÚÔÚ¸÷¸ö»Øµ÷º¯ÊıÄÚÊ¹ÓÃ */
+    /* ä¼ å…¥ç”¨æˆ·æ•°æ®æŒ‡é’ˆ, ä¾¿äºåœ¨å„ä¸ªå›è°ƒå‡½æ•°å†…ä½¿ç”¨ */
     ev_set_userdata(dm->loop, dm);
 #endif /* __HAVE_DIAG_MASTER_PTHREAD__ */
 
-    /* ¼àÌıIPC¶ÁÊÂ¼ş */
+    /* ç›‘å¬IPCè¯»äº‹ä»¶ */
     ev_io_init(&dm->iread_watcher, dm_ev_io_dm_ipc_read, dm->sockfd, EV_READ);
     ev_io_start(dm->loop, &dm->iread_watcher);
 
-    /* ¼àÌıIPCĞ´ÊÂ¼ş */
+    /* ç›‘å¬IPCå†™äº‹ä»¶ */
     // ev_io_init(&dm->iwrite_watcher, dm_ipc_write, dm->sockfd, EV_WRITE);
-    /* Æô¶¯ĞÄÌøÔÚÏß¼ì²â */
+    /* å¯åŠ¨å¿ƒè·³åœ¨çº¿æ£€æµ‹ */
     ev_timer_init(&dm->keepalive_watcher, dm_ev_timer_keepalive_handler, \
         dm->keepalive_interval * 0.001, dm->keepalive_interval * 0.001);
     ev_timer_start(dm->loop, &dm->keepalive_watcher);
 
-    /* ³õÊ¼»¯²¿·ÖÄ¬ÈÏÕï¶Ï¿Í»§¶Ë£¬ºóĞø¾Í²»ĞèÒªÖØ¸´µÄ´´½¨Ïú»Ù */
+    /* åˆå§‹åŒ–éƒ¨åˆ†é»˜è®¤è¯Šæ–­å®¢æˆ·ç«¯ï¼Œåç»­å°±ä¸éœ€è¦é‡å¤çš„åˆ›å»ºé”€æ¯ */
     for (udsc_id = 0; udsc_id < DM_UDSC_CAPACITY_DEF; udsc_id++) {
         uds_client *udsc = yudsc_create();
         if (udsc) {            
@@ -1306,7 +1306,7 @@ ydiag_master *dm_create(DMS *dms, const char *dm_path, const char *dmapi_path)
         }
     }
 
-    /* ½ø³Ì¼äÍ¨ĞÅÏûÏ¢´¦Àíº¯Êı */
+    /* è¿›ç¨‹é—´é€šä¿¡æ¶ˆæ¯å¤„ç†å‡½æ•° */
     dm_ipc_event_handler_add(dm, DM_EVENT_SERVICE_RESPONSE_EMIT, \
                                     dm_ipc_event_service_response_handler);
     dm_ipc_event_handler_add(dm, DM_EVENT_UDS_CLIENT_CREATE_EMIT, \
@@ -1362,20 +1362,20 @@ void dm_destroy(ydiag_master *dm)
 {
     int udsc_index = 0;
 
-    /* Í¨Öªdiag master¼´½«Ïú»Ù */
+    /* é€šçŸ¥diag masterå³å°†é”€æ¯ */
     dm_instance_destroy_event_emit(dm);
 
-    /* Í£Ö¹»îÔ¾µÄUDS¿Í»§¶Ë²¢Ïú»Ù */
+    /* åœæ­¢æ´»è·ƒçš„UDSå®¢æˆ·ç«¯å¹¶é”€æ¯ */
     for (udsc_index = 0; udsc_index < dm->udsc_cnt; udsc_index++) {
         if (dm->udscs[udsc_index]) {
             yudsc_services_stop(dm->udscs[udsc_index]);
-            yudsc_destroy(dm->udscs[udsc_index]); /* Ïú»ÙÊÍ·ÅUDS¿Í»§¶Ë */
+            yudsc_destroy(dm->udscs[udsc_index]); /* é”€æ¯é‡Šæ”¾UDSå®¢æˆ·ç«¯ */
             dm->udscs[udsc_index] = NULL;
         }
     }
 
 #ifdef __HAVE_DIAG_MASTER_PTHREAD__ 
-    /* ÆôÓÃÏß³ÌĞèÒªÏú»ÙÊÂ¼şÑ­»·loop */
+    /* å¯ç”¨çº¿ç¨‹éœ€è¦é”€æ¯äº‹ä»¶å¾ªç¯loop */
     if (dm->loop) {
         dm_ev_stop(dm);
         ev_loop_destroy(dm->loop);
@@ -1392,7 +1392,7 @@ void dm_destroy(ydiag_master *dm)
     DMS_LOCK;
     if (dm->dms && \
         dm->index < DMS_DIAG_MASTER_NUM_MAX) {
-        /* ÒÆ³ıdiag masterÔÚomsÉÏµÄ¼ÇÂ¼ */
+        /* ç§»é™¤diag masteråœ¨omsä¸Šçš„è®°å½• */
         dm->dms->dm[dm->index] = 0;
     }
     DMS_UNLOCK;
@@ -1415,11 +1415,11 @@ void *dm_thread_run(void *arg)
         return 0;
     }
     pthread_detach(pthread_self());
-    /* ¿ªÊ¼ÊÂ¼şÑ­»·£¬ÈÎÒâÊ±¿Ì¶¼µÃ´æÔÚÊÂ¼ş£¬Èç¹ûÃ»ÓĞÊÂ¼ş½«µ¼ÖÂÏß³ÌÍË³ö */
+    /* å¼€å§‹äº‹ä»¶å¾ªç¯ï¼Œä»»æ„æ—¶åˆ»éƒ½å¾—å­˜åœ¨äº‹ä»¶ï¼Œå¦‚æœæ²¡æœ‰äº‹ä»¶å°†å¯¼è‡´çº¿ç¨‹é€€å‡º */
     log_d("diag master event loop start.");
 
     ev_run(ydiag_master_ev_loop(dm), 0);
-    /* ÊÂ¼şÑ­»·ÍË³öÏú»Ùdiag master */
+    /* äº‹ä»¶å¾ªç¯é€€å‡ºé”€æ¯diag master */
     dm_destroy(dm);
     log_d("diag master event loop exit thread exits.");
 
@@ -1455,11 +1455,11 @@ static void dm_ev_io_oms_read(struct ev_loop *loop, ev_io *w, int e)
                 sizeof(dms->rxbuf) - DM_IPC_EVENT_MSG_SIZE, &cf);
             if (access(cf.event_emit_path, F_OK) != 0 || \
                 access(cf.event_listen_path, F_OK) != 0) {
-                /* ÎŞ·¨»ñÈ¡diag master apiµÄ´æÔÚ */
+                /* æ— æ³•è·å–diag master apiçš„å­˜åœ¨ */
                 recode = DM_ERR_OMAPI_UNKNOWN;
                 goto REPLY;
             }
-            /* ÕÒµ½Ò»¸ö¿ÕÏĞµÄdiag masterÎ»ÖÃ */            
+            /* æ‰¾åˆ°ä¸€ä¸ªç©ºé—²çš„diag masterä½ç½® */            
             DMS_LOCK;
             for (om_index = 0; om_index < DMS_DIAG_MASTER_NUM_MAX; om_index++) {
                 if (dms->dm[om_index] == NULL) {
@@ -1467,14 +1467,14 @@ static void dm_ev_io_oms_read(struct ev_loop *loop, ev_io *w, int e)
                 }
             }            
             DMS_UNLOCK;
-            /* ÅĞ¶ÏË÷ÒıÊÇ·ñÓĞĞ§ */
+            /* åˆ¤æ–­ç´¢å¼•æ˜¯å¦æœ‰æ•ˆ */
             if (!(om_index < DMS_DIAG_MASTER_NUM_MAX)) {
                 recode = DM_ERR_DIAG_MASTER_MAX;            
                 goto REPLY;
             }
-            /* ´´½¨ĞÂµÄdiag masterµÄunix socket path */
+            /* åˆ›å»ºæ–°çš„diag masterçš„unix socket path */
             snprintf(dm_path, sizeof(dm_path), DM_UNIX_SOCKET_PATH_PREFIX"%d", om_index);
-            /* ´´½¨ĞÂµÄdiag master */
+            /* åˆ›å»ºæ–°çš„diag master */
             log_i("diag master unix socket address: %s yapi unix socket address: %s", dm_path, cf.event_emit_path);
             dm = dm_create(dms, dm_path, cf.event_emit_path);
             if (dm == NULL) {
@@ -1483,12 +1483,12 @@ static void dm_ev_io_oms_read(struct ev_loop *loop, ev_io *w, int e)
                 goto REPLY;
             }    
             snprintf(dm->dmapi_event_listen_path, sizeof(dm->dmapi_event_listen_path), "%s", cf.event_listen_path);
-            /* ´´½¨diag masterµÄÊÂ¼şÑ­»·Ïß³Ì,ÓÃÓÚºÍdiag master api½øĞĞIPCÍ¨ĞÅ´¦Àí */
+            /* åˆ›å»ºdiag masterçš„äº‹ä»¶å¾ªç¯çº¿ç¨‹,ç”¨äºå’Œdiag master apiè¿›è¡ŒIPCé€šä¿¡å¤„ç† */
 #ifdef __HAVE_DIAG_MASTER_PTHREAD__
-/* diag master Ê¹ÓÃÏß³Ì½øĞĞÊÂ¼şÑ­»·,ĞèÒª´´½¨Ïß³Ì */
+/* diag master ä½¿ç”¨çº¿ç¨‹è¿›è¡Œäº‹ä»¶å¾ªç¯,éœ€è¦åˆ›å»ºçº¿ç¨‹ */
             if (pthread_create(&tidp, 0, dm_thread_run, dm) != 0) {
                 log_d(" diag master thread create failed.");  
-                dm_destroy(dm); /* ´´½¨Ê§°ÜÏú»ÙÊÍ·Ådiag master */              
+                dm_destroy(dm); /* åˆ›å»ºå¤±è´¥é”€æ¯é‡Šæ”¾diag master */              
                 recode = DM_ERR_DIAG_MASTER_CREATE;
                 goto REPLY;
             }
@@ -1563,12 +1563,12 @@ static void dm_ev_timer_logfile_limit_handler(struct ev_loop *loop, ev_timer *w,
             log_e("Failed to obtain file status information => %s", path);
             continue;
         }
-        // ÅĞ¶ÏÊÇ·ñÎª³£¹æÎÄ¼şÇÒ·Ç¿Õ°××Ö·û´®
+        // åˆ¤æ–­æ˜¯å¦ä¸ºå¸¸è§„æ–‡ä»¶ä¸”éç©ºç™½å­—ç¬¦ä¸²
         if (S_ISREG(fileStat.st_mode) && !isspace(entry->d_name[0])) {            
-            /* Ä¿Â¼ÄÚÈÕÖ¾ÎÄ¼ş´óĞ¡Í³¼Æ */
+            /* ç›®å½•å†…æ—¥å¿—æ–‡ä»¶å¤§å°ç»Ÿè®¡ */
             dir_file_size += fileStat.st_size;
             if (fileStat.st_mtime < old_file_mtime) {
-                /* ±£´æ×îÀÏµÄÈÕÖ¾ÎÄ¼şĞÅÏ¢ */
+                /* ä¿å­˜æœ€è€çš„æ—¥å¿—æ–‡ä»¶ä¿¡æ¯ */
                 memset(old_file_path, 0, sizeof(old_file_path));
                 snprintf(old_file_path, sizeof(old_file_path), "%s", path);
                 old_file_mtime = fileStat.st_mtime;
@@ -1576,7 +1576,7 @@ static void dm_ev_timer_logfile_limit_handler(struct ev_loop *loop, ev_timer *w,
         }
     }
 
-    /* Èç¹ûÎÄ¼ş´óĞ¡ÔÚ200MºÍ500MÖ®¼ä£¬ÈÕÖ¾×î¾ÃµÄÈÕÖ¾´óÓÚ12¸öÔÂ¾ÍÉ¾³ı */
+    /* å¦‚æœæ–‡ä»¶å¤§å°åœ¨200Må’Œ500Mä¹‹é—´ï¼Œæ—¥å¿—æœ€ä¹…çš„æ—¥å¿—å¤§äº12ä¸ªæœˆå°±åˆ é™¤ */
     if (dir_file_size > (200/* M */ * 1024/* K */ * 1024/* byte */) && \
         dir_file_size < (500/* M */ * 1024/* K */ * 1024/* byte */)) {
         int def_time = (time(NULL) - old_file_mtime);
@@ -1616,7 +1616,7 @@ void dm_oms_destroy(DMS *dms)
         return ;
     }
 
-    /* Í£Ö¹ËùÓĞÊÂ¼şÑ­»· */
+    /* åœæ­¢æ‰€æœ‰äº‹ä»¶å¾ªç¯ */
     ev_timer_stop(dms->loop, &dms->logfile_limit_watcher);
     ev_io_stop(dms->loop, &dms->iwrite_watcher);
     ev_io_stop(dms->loop, &dms->iread_watcher);
@@ -1654,14 +1654,14 @@ DMS *dm_oms_create()
         goto CREAT_FAILED;
     }
     dms->loop = ev_loop_new(0);;
-    /* ´«ÈëÓÃ»§Êı¾İÖ¸Õë, ±ãÓÚÔÚ¸÷¸ö»Øµ÷º¯ÊıÄÚÊ¹ÓÃ */
+    /* ä¼ å…¥ç”¨æˆ·æ•°æ®æŒ‡é’ˆ, ä¾¿äºåœ¨å„ä¸ªå›è°ƒå‡½æ•°å†…ä½¿ç”¨ */
     ev_set_userdata(dms->loop, dms);
 
-    /* ¼àÌıIPC¶ÁÊÂ¼ş */
+    /* ç›‘å¬IPCè¯»äº‹ä»¶ */
     ev_io_init(&dms->iread_watcher, dm_ev_io_oms_read, dms->sockfd, EV_READ);
     ev_io_start(dms->loop, &dms->iread_watcher);
     
-    /* ¼à¿ØÈÕÖ¾ÎÄ¼ş´óĞ¡ */
+    /* ç›‘æ§æ—¥å¿—æ–‡ä»¶å¤§å° */
     ev_timer_init(&dms->logfile_limit_watcher, dm_ev_timer_logfile_limit_handler, 60, 60);
     ev_timer_start(dms->loop, &dms->logfile_limit_watcher);
     return dms;
@@ -1685,13 +1685,13 @@ void *dm_oms_thread_run(void *arg)
         return 0;
     }
     pthread_detach(pthread_self());
-    /* ¿ªÊ¼ÊÂ¼şÑ­»·£¬ÈÎÒâÊ±¿Ì¶¼µÃ´æÔÚÊÂ¼ş£¬Èç¹ûÃ»ÓĞÊÂ¼ş½«µ¼ÖÂÏß³ÌÍË³ö */
+    /* å¼€å§‹äº‹ä»¶å¾ªç¯ï¼Œä»»æ„æ—¶åˆ»éƒ½å¾—å­˜åœ¨äº‹ä»¶ï¼Œå¦‚æœæ²¡æœ‰äº‹ä»¶å°†å¯¼è‡´çº¿ç¨‹é€€å‡º */
     log_d("diag master oms event loop start.");
 
     ev_run(dms->loop, 0);
-    /* Õı³£Çé¿öÏÂÊÂ¼şÑ­»·ÊÇ²»»áÍË³öµÄ£¬ÍË³ö¾ÍËµÃ÷²»Õı³£ÁË */
+    /* æ­£å¸¸æƒ…å†µä¸‹äº‹ä»¶å¾ªç¯æ˜¯ä¸ä¼šé€€å‡ºçš„ï¼Œé€€å‡ºå°±è¯´æ˜ä¸æ­£å¸¸äº† */
     log_e("diag master oms event loop exit thread exits.");    
-    /* ÊÍ·ÅÄÚ´æ */
+    /* é‡Šæ”¾å†…å­˜ */
     ev_loop_destroy(dms->loop);
     yfree(dms);
     __g_oms__ = NULL;
@@ -1703,20 +1703,20 @@ int dm_oms_start(void)
 {
     pthread_t tidp = 0;
 
-    /* OMS½á¹¹ÌåÓÃÓÚ¹ÜÀí½ÓÈëµÄdiag master api */
+    /* OMSç»“æ„ä½“ç”¨äºç®¡ç†æ¥å…¥çš„diag master api */
     DMS *dms = dm_oms_create();
     if (dms == NULL) {
         log_d("diag master oms create failed.");
         return -1;
     }
-    /* ´´½¨Ïß³ÌÓÃÓÚÊÂ¼şÑ­»· */
+    /* åˆ›å»ºçº¿ç¨‹ç”¨äºäº‹ä»¶å¾ªç¯ */
     if (pthread_create(&tidp, 0, dm_oms_thread_run, dms) == 0) {
         log_d(" diag master oms thread create success.");
     }
     else {
         goto OMS_START_FAILE;
     }
-    /* È«¾Ö±£´æÒ»ÏÂ,ÊÍ·ÅÊ±ĞèÒªÊ¹ÓÃµ½ */
+    /* å…¨å±€ä¿å­˜ä¸€ä¸‹,é‡Šæ”¾æ—¶éœ€è¦ä½¿ç”¨åˆ° */
     __g_oms__ = dms;
 
     return 0;
@@ -1752,7 +1752,7 @@ static void dm_uds_asc_record(char *direction, yuint8 *msg, yuint32 mlen)
     static yuint32 msg_counter = 0;
 
     msg_counter++;
-    /* 36·şÎñµÄÎÄ¼şÊı¾İ²¿·Ö²»Êä³öµ½ÈÕÖ¾ÁË£¬Ì«¶àÈÕÖ¾ÁË¼ò»¯Ò»ÏÂ */
+    /* 36æœåŠ¡çš„æ–‡ä»¶æ•°æ®éƒ¨åˆ†ä¸è¾“å‡ºåˆ°æ—¥å¿—äº†ï¼Œå¤ªå¤šæ—¥å¿—äº†ç®€åŒ–ä¸€ä¸‹ */
     if (msg[0] == 0x36) {
         str[str_index++] = HEX_TO_CHAR(((msg[0] >> 4) & 0x0f));
         str[str_index++] = HEX_TO_CHAR(((msg[0]) & 0x0f));
@@ -1818,12 +1818,12 @@ void dm_log_conf_init()
                      "dmcat.=fatal \""DM_LOG_SAVE_DIR_DEF""DM_LOG_FILE_FORMAT"\", 10M * 100 ~ \""DM_LOG_SAVE_DIR_DEF""DM_LOG_FILE_FORMAT".#r\"; detail \n"    
                      "dmcat.=notice \""DM_LOG_SAVE_DIR_DEF""DM_LOG_FILE_FORMAT"\", 10M * 100 ~ \""DM_LOG_SAVE_DIR_DEF""DM_LOG_FILE_FORMAT".#r\"; asc \n"
                      "dmcat.=show \""DM_LOG_SAVE_DIR_DEF""DM_LOG_FILE_FORMAT"\", 10M * 100 ~ \""DM_LOG_SAVE_DIR_DEF""DM_LOG_FILE_FORMAT".#r\"; showformat \n";
-    /* ÊÇ·ñ´æÔÚÈÕÖ¾ÅäÖÃÎÄ¼ş */
+    /* æ˜¯å¦å­˜åœ¨æ—¥å¿—é…ç½®æ–‡ä»¶ */
     if (access(rt_config.log_config_file, F_OK) == 0) {
-        /* ´æÔÚ¾ÍËãÁË */
+        /* å­˜åœ¨å°±ç®—äº† */
         return ;
     }
-    /* ²»´æÔÚÊ¹ÓÃÄ¬ÈÏµÄÈÕÖ¾ÅäÖÃ */
+    /* ä¸å­˜åœ¨ä½¿ç”¨é»˜è®¤çš„æ—¥å¿—é…ç½® */
     lfd = fopen(rt_config.log_config_file, "w+");
     if (!lfd) {
         return ;
@@ -1838,12 +1838,12 @@ int dm_log_init()
 {
     int rc;
 
-    /* ÈÕÖ¾ÎÄ¼ş´æ´¢Ä¿Â¼£¬Ã»ÓĞ¾Í´´½¨ */
+    /* æ—¥å¿—æ–‡ä»¶å­˜å‚¨ç›®å½•ï¼Œæ²¡æœ‰å°±åˆ›å»º */
     if (access(rt_config.log_save_dir, F_OK) != 0) {
         mkdir(rt_config.log_save_dir, 0777);
     }
     
-    /* ÈÕÖ¾ÅäÖÃÎÄ¼ş */
+    /* æ—¥å¿—é…ç½®æ–‡ä»¶ */
     dm_log_conf_init();
     
 #ifdef __HAVE_ZLOG__
@@ -1854,9 +1854,9 @@ int dm_log_init()
         return -1;
     }
 
-    /* Æô¶¯zlog×Ôµ÷ÊÔ */
-    putenv("export ZLOG_PROFILE_ERROR="DM_LOG_SAVE_DIR_DEF"zlog.error.log"); /* Êä³ö´íÎóĞÅÏ¢ */
-    // putenv("export ZLOG_PROFILE_DEBUG="DM_LOG_SAVE_DIR_DEF"zlog.debug.log"); /* Êä³öµ÷ÊÔĞÅÏ¢ */
+    /* å¯åŠ¨zlogè‡ªè°ƒè¯• */
+    putenv("export ZLOG_PROFILE_ERROR="DM_LOG_SAVE_DIR_DEF"zlog.error.log"); /* è¾“å‡ºé”™è¯¯ä¿¡æ¯ */
+    // putenv("export ZLOG_PROFILE_DEBUG="DM_LOG_SAVE_DIR_DEF"zlog.debug.log"); /* è¾“å‡ºè°ƒè¯•ä¿¡æ¯ */
 #endif /* __HAVE_ZLOG__ */
 
     return 0;
@@ -1889,12 +1889,12 @@ void dm_log_conf_init_debug()
                      "dmcat.=notice >stdout;asc \n"
                      "dmcat.=show >stdout;showformat \n";
 
-    /* ÊÇ·ñ´æÔÚÈÕÖ¾ÅäÖÃÎÄ¼ş */
+    /* æ˜¯å¦å­˜åœ¨æ—¥å¿—é…ç½®æ–‡ä»¶ */
     if (access(rt_config.log_config_file, F_OK) == 0) {
-        /* ´æÔÚ¾ÍËãÁË */
+        /* å­˜åœ¨å°±ç®—äº† */
         return ;
     }
-    /* ²»´æÔÚÊ¹ÓÃÄ¬ÈÏµÄÈÕÖ¾ÅäÖÃ */
+    /* ä¸å­˜åœ¨ä½¿ç”¨é»˜è®¤çš„æ—¥å¿—é…ç½® */
     lfd = fopen(rt_config.log_config_file, "w+");
     if (!lfd) {
         return ;
@@ -1909,12 +1909,12 @@ int dm_log_init_debug()
 {
     int rc;
 
-    /* ÈÕÖ¾ÎÄ¼ş´æ´¢Ä¿Â¼£¬Ã»ÓĞ¾Í´´½¨ */
+    /* æ—¥å¿—æ–‡ä»¶å­˜å‚¨ç›®å½•ï¼Œæ²¡æœ‰å°±åˆ›å»º */
     if (access(rt_config.log_save_dir, F_OK) != 0) {
         mkdir(rt_config.log_save_dir, 0777);
     }
     
-    /* ÈÕÖ¾ÅäÖÃÎÄ¼ş */
+    /* æ—¥å¿—é…ç½®æ–‡ä»¶ */
     dm_log_conf_init_debug();
     
 #ifdef __HAVE_ZLOG__
@@ -1925,9 +1925,9 @@ int dm_log_init_debug()
         return -1;
     }
 
-    /* Æô¶¯zlog×Ôµ÷ÊÔ */
-    putenv("export ZLOG_PROFILE_ERROR="DM_LOG_SAVE_DIR_DEF"zlog.error.log"); /* Êä³ö´íÎóĞÅÏ¢ */
-    putenv("export ZLOG_PROFILE_DEBUG="DM_LOG_SAVE_DIR_DEF"zlog.debug.log"); /* Êä³öµ÷ÊÔĞÅÏ¢ */
+    /* å¯åŠ¨zlogè‡ªè°ƒè¯• */
+    putenv("export ZLOG_PROFILE_ERROR="DM_LOG_SAVE_DIR_DEF"zlog.error.log"); /* è¾“å‡ºé”™è¯¯ä¿¡æ¯ */
+    putenv("export ZLOG_PROFILE_DEBUG="DM_LOG_SAVE_DIR_DEF"zlog.debug.log"); /* è¾“å‡ºè°ƒè¯•ä¿¡æ¯ */
 #endif /* __HAVE_ZLOG__ */
 
     return 0;
@@ -1942,7 +1942,7 @@ void dm_process_info()
 
 void dm_init(int attr)
 {
-    /* ÈÕÖ¾ÏµÍ³³õÊ¼»¯ */
+    /* æ—¥å¿—ç³»ç»Ÿåˆå§‹åŒ– */
     if (rt_config.is_debug_enable) {
         dm_log_init_debug();
     }
@@ -1950,10 +1950,10 @@ void dm_init(int attr)
         dm_log_init();
     }
 
-    /* ½ø³ÌĞÅÏ¢ */
+    /* è¿›ç¨‹ä¿¡æ¯ */
     dm_process_info();
 
-    /* Æô¶¯Ö÷ÊÂ¼şÑ­»·Ïß³Ì */
+    /* å¯åŠ¨ä¸»äº‹ä»¶å¾ªç¯çº¿ç¨‹ */
     dm_oms_start();
 }
 
@@ -1962,9 +1962,9 @@ void dm_init(int attr)
 void *dm_wait_time_sync_run(void *arg)
 {
     struct timeval timeout;
-    int time_total = rt_config.sync_time_wait; /* 2minºó»¹ÊÇ½øÈë³ÌĞòÔËĞĞ */
+    int time_total = rt_config.sync_time_wait; /* 2minåè¿˜æ˜¯è¿›å…¥ç¨‹åºè¿è¡Œ */
 
-    /* µÈ´ıÏµÍ³Íê³ÉĞ£Ê± */
+    /* ç­‰å¾…ç³»ç»Ÿå®Œæˆæ ¡æ—¶ */
     while (time(NULL) < DM_REFERENCE_TIME_STAMP && \
            time_total > 0) {
         timeout.tv_sec = 1;
@@ -2002,16 +2002,16 @@ void dm_runtime_config_init()
 int dm_start(int attr)
 {
     if (__g_oms__ != NULL) {
-        /* ÒÑ¾­Æô¶¯²»ÔÙÖØ¸´Æô¶¯ */
+        /* å·²ç»å¯åŠ¨ä¸å†é‡å¤å¯åŠ¨ */
         return 0;
     }
 
-    /* ÔËĞĞÊ±ÅäÖÃ³õÊ¼»¯ */
+    /* è¿è¡Œæ—¶é…ç½®åˆå§‹åŒ– */
     dm_runtime_config_init();
 
     if (DM_ATTR_ISSET(attr, DM_START_WAIT_SYSTEM_TIME_SYNC_ATTR) && \
         time(NULL) < DM_REFERENCE_TIME_STAMP) {
-        /* µÈ´ıÏµÍ³Íê³ÉĞ£Ê± */
+        /* ç­‰å¾…ç³»ç»Ÿå®Œæˆæ ¡æ—¶ */
         printf("diag master waiting system time sync... \n");
         dm_wait_time_sync(attr);
     }
@@ -2022,7 +2022,7 @@ int dm_start(int attr)
     return 0;
 }
 
-/* ×Ó½ø³Ì°²È«ÍË³ö */
+/* å­è¿›ç¨‹å®‰å…¨é€€å‡º */
 void child_process_graceful_exit(int sig) 
 {
     printf("child process graceful exit \n");
@@ -2031,7 +2031,7 @@ void child_process_graceful_exit(int sig)
     exit(0);
 }
 
-/* ¸¸½ø³Ì°²È«ÍË³ö */
+/* çˆ¶è¿›ç¨‹å®‰å…¨é€€å‡º */
 void parent_process_graceful_exit(int sig) 
 {
     int status = 0;
@@ -2055,7 +2055,7 @@ void signals_ignore(int sig)
     printf("diag master ignore signal %d \n", sig);
 }
 
-/* ×Ó½ø³ÌÑÓÊ±Æô¶¯Ê±¼ä */
+/* å­è¿›ç¨‹å»¶æ—¶å¯åŠ¨æ—¶é—´ */
 #define DM_CHILD_PROCESS_RESTART_DELAY (5) 
 
 int dm_self_monitor_start(int attr)
@@ -2065,10 +2065,10 @@ int dm_self_monitor_start(int attr)
     int lock_result = 0;
     char *lck_file = "/tmp/om_process.lock";
 
-    /* ·ÀÖ¹½ø³Ì±»ÒâÍâ¸Éµô */
+    /* é˜²æ­¢è¿›ç¨‹è¢«æ„å¤–å¹²æ‰ */
     signal(SIGRTMAX - 14, signals_ignore);
 
-    /* ·ÀÖ¹¶à´ÎÆô¶¯ */
+    /* é˜²æ­¢å¤šæ¬¡å¯åŠ¨ */
     rt_config.process_lock_fd = open(lck_file, O_RDWR | O_CREAT);
     if (rt_config.process_lock_fd < 0) {
         printf("Open file failed => %s \n", lck_file);
@@ -2087,13 +2087,13 @@ int dm_self_monitor_start(int attr)
         return -3;
     }
 
-    /* ¸¸½ø³Ì×¢²áÕâĞ©ĞÅºÅ£¬ÔÚ¸¸½ø³ÌÍË³öÊ±ÇåÀí×Ó½ø³Ì */
+    /* çˆ¶è¿›ç¨‹æ³¨å†Œè¿™äº›ä¿¡å·ï¼Œåœ¨çˆ¶è¿›ç¨‹é€€å‡ºæ—¶æ¸…ç†å­è¿›ç¨‹ */
     signal(SIGTERM, parent_process_graceful_exit);
     signal(SIGQUIT, parent_process_graceful_exit);    
-    /* ÖØÃüÃû¸¸½ø³Ì£¬±ãÓÚÇø·Ö¸¸×Ó½ø³Ì */
+    /* é‡å‘½åçˆ¶è¿›ç¨‹ï¼Œä¾¿äºåŒºåˆ†çˆ¶å­è¿›ç¨‹ */
     prctl(PR_SET_NAME, "dm-monitor", NULL, NULL, NULL);
     
-    rt_config.parent_active = true; /* ¸¸½ø³ÌÑ­»·¿ªÊ¼ */
+    rt_config.parent_active = true; /* çˆ¶è¿›ç¨‹å¾ªç¯å¼€å§‹ */
     do {        
         rt_config.child_pid = fork();
         switch (rt_config.child_pid) {
@@ -2107,17 +2107,17 @@ int dm_self_monitor_start(int attr)
                     close(rt_config.process_lock_fd);
                     rt_config.process_lock_fd = -1;
                 }
-                /* ÖØÃüÃû×Ó½ø³Ì£¬±ãÓÚÇø·Ö¸¸×Ó½ø³Ì */
+                /* é‡å‘½åå­è¿›ç¨‹ï¼Œä¾¿äºåŒºåˆ†çˆ¶å­è¿›ç¨‹ */
                 prctl(PR_SET_NAME, "dm-working", NULL, NULL, NULL);
-                dm_start(attr); /* Ö÷ÒµÎñÆô¶¯ */
-                while (1) { sleep(1); } /* ·ÀÖ¹½ø³ÌÍË³ö */
+                dm_start(attr); /* ä¸»ä¸šåŠ¡å¯åŠ¨ */
+                while (1) { sleep(1); } /* é˜²æ­¢è¿›ç¨‹é€€å‡º */
             default:
                 // wait for exit
                 printf("diag master monitoring the child process pid %d \n", rt_config.child_pid);
                 waitpid(rt_config.child_pid, &status, 0);
                 printf("diag master process %d exit status %d \n", rt_config.child_pid, status);
         }        
-        sleep(DM_CHILD_PROCESS_RESTART_DELAY); /* ÑÓÊ±ÔÙÖØĞÂfork×Ó½ø³Ì */
+        sleep(DM_CHILD_PROCESS_RESTART_DELAY); /* å»¶æ—¶å†é‡æ–°forkå­è¿›ç¨‹ */
     }while (rt_config.parent_active);
 
     return 0;
@@ -2156,7 +2156,7 @@ void ydiag_master_log_save_dir_set(const char *dir)
 
 int ydiag_master_start(int attr)
 {
-    /* forkÖ÷ÒµÎñÂß¼­ */
+    /* forkä¸»ä¸šåŠ¡é€»è¾‘ */
     if (DM_ATTR_ISSET(attr, DM_SELF_MONITOR_ATTR)) {
         return dm_self_monitor_start(attr);
     }
